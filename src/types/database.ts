@@ -1,0 +1,150 @@
+/**
+ * Supabase 스키마 타입 (supabase/migrations 기준).
+ * 스키마가 바뀌면 `npx supabase gen types typescript --local > src/types/database.ts` 로 다시 생성할 수 있습니다.
+ */
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: '13';
+  };
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string;
+          email: string | null;
+          birth_date: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          email?: string | null;
+          birth_date?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string | null;
+          birth_date?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      tickets: {
+        Row: {
+          id: string;
+          user_id: string;
+          round: number;
+          purchase_date: string;
+          store_code: string | null;
+          store_name: string | null;
+          amount: number;
+          games: Json;
+          win_amount: number;
+          profit: number;
+          qr_raw: string | null;
+          opened_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          round: number;
+          purchase_date?: string;
+          store_code?: string | null;
+          store_name?: string | null;
+          amount?: number;
+          games: Json;
+          qr_raw?: string | null;
+          opened_at?: string | null;
+        };
+        Update: {
+          round?: number;
+          purchase_date?: string;
+          store_code?: string | null;
+          store_name?: string | null;
+          amount?: number;
+          games?: Json;
+          opened_at?: string | null;
+        };
+        Relationships: [];
+      };
+      winning_draws: {
+        Row: {
+          round: number;
+          draw_date: string;
+          numbers: number[];
+          bonus: number;
+          store_codes: string[];
+          second_store_codes: string[];
+          prize_amounts: number[] | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          round: number;
+          draw_date: string;
+          numbers: number[];
+          bonus: number;
+          store_codes?: string[];
+          second_store_codes?: string[];
+          prize_amounts?: number[] | null;
+        };
+        Update: {
+          draw_date?: string;
+          numbers?: number[];
+          bonus?: number;
+          store_codes?: string[];
+          second_store_codes?: string[];
+          prize_amounts?: number[] | null;
+        };
+        Relationships: [];
+      };
+      stores: {
+        Row: {
+          code: string;
+          name: string;
+          address: string | null;
+          lat: number | null;
+          lng: number | null;
+          first_win_count: number;
+          second_win_count: number;
+          is_hot: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          code: string;
+          name: string;
+          address?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          first_win_count?: number;
+          second_win_count?: number;
+          is_hot?: boolean;
+        };
+        Update: {
+          name?: string;
+          address?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          first_win_count?: number;
+          second_win_count?: number;
+          is_hot?: boolean;
+        };
+        Relationships: [];
+      };
+      dream_map: {
+        Row: { keyword: string; numbers: number[] };
+        Insert: { keyword: string; numbers: number[] };
+        Update: { keyword?: string; numbers?: number[] };
+        Relationships: [];
+      };
+    };
+    Views: { [_ in never]: never };
+    Functions: { [_ in never]: never };
+    Enums: { [_ in never]: never };
+    CompositeTypes: { [_ in never]: never };
+  };
+};

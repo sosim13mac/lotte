@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: #0b0d1f;
+}
+
+body {
+  @apply font-sans text-fog antialiased;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  background-image: radial-gradient(120% 60% at 50% -10%, rgba(255, 201, 74, 0.1), rgba(11, 13, 31, 0) 60%);
+  background-repeat: no-repeat;
+}
+
+@layer utilities {
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-3xl border border-white/5 bg-ink-800 p-5 shadow-card;
+  }
+  .btn {
+    @apply inline-flex h-12 items-center justify-center gap-2 rounded-2xl px-4 text-[15px] font-bold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-gold {
+    @apply btn bg-gold text-ink hover:bg-gold-soft;
+  }
+  .btn-ghost {
+    @apply btn bg-ink-700 text-fog hover:bg-ink-600;
+  }
+  .btn-sm {
+    @apply h-9 rounded-xl px-3 text-sm;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-ink-700 px-3 py-1 text-xs font-medium text-fog-300;
+  }
+  .input {
+    @apply h-12 w-full rounded-2xl border border-ink-600 bg-ink-700 px-4 text-base text-fog placeholder:text-fog-500 focus:outline-none focus:ring-2 focus:ring-gold/60;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-fog-300;
+  }
+  .section-title {
+    @apply font-display text-xl text-fog;
+  }
+}

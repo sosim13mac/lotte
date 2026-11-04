@@ -1,0 +1,26 @@
+# deps
+node_modules/
+
+# next
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# env
+.env
+.env*.local
+
+# supabase local
+supabase/.branches
+supabase/.temp
+supabase/.env
+
+# tesseract assets copied at install time (scripts/copy-tesseract-assets.mjs)
+public/tesseract/
+
+# misc
+.DS_Store
+npm-debug.log*
+coverage/
+test-results/
