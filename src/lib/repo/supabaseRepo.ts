@@ -102,6 +102,12 @@ export function createSupabaseRepo(): Repo {
       return data;
     },
 
+    async findStore(code) {
+      const { data, error } = await sb.from('stores').select('*').eq('code', code).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+
     async signOut() {
       await sb.auth.signOut();
     },

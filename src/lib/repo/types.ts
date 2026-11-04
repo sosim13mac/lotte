@@ -49,5 +49,7 @@ export interface Repo {
   /** rounds 를 주면 해당 회차만, 아니면 최신순 limit 개 */
   listDraws(opts?: { rounds?: number[]; limit?: number }): Promise<WinningDraw[]>;
   listDreamMap(): Promise<DreamEntry[]>;
+  /** 판매점 코드 → 판매점 (명당 DB 에 없으면 null) */
+  findStore(code: string): Promise<Store | null>;
   signOut(): Promise<void>;
 }

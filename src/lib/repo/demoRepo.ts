@@ -1,7 +1,7 @@
 import { GAME_PRICE } from '@/lib/lotto/constants';
 import { ticketResult } from '@/lib/lotto/prize';
 import { latestDrawnRound } from '@/lib/lotto/round';
-import { buildDemoDataset, DEMO_DREAMS, DEMO_USER_ID, demoProfile, type DemoDataset } from './demoData';
+import { buildDemoDataset, DEMO_DREAMS, DEMO_STORES, DEMO_USER_ID, demoProfile, type DemoDataset } from './demoData';
 import { DuplicateTicketError, type Profile, type Repo, type Ticket } from './types';
 
 const STORAGE_KEY = 'zzolgit:demo:v1';
@@ -123,6 +123,10 @@ export function createDemoRepo(): Repo {
 
     async listDreamMap() {
       return DEMO_DREAMS;
+    },
+
+    async findStore(code) {
+      return DEMO_STORES.find((st) => st.code === code) ?? null;
     },
 
     async signOut() {

@@ -2,6 +2,7 @@ import { Disclaimer } from '@/components/Disclaimer';
 import { LatestDrawCard } from '@/components/home/LatestDrawCard';
 import { NextDrawCard } from '@/components/home/NextDrawCard';
 import { Logo } from '@/components/Logo';
+import { TicketScanner } from '@/components/scan/TicketScanner';
 
 export default function HomePage() {
   return (
@@ -10,6 +11,7 @@ export default function HomePage() {
         <Logo className="text-[28px]" />
       </header>
       <NextDrawCard />
+      <TicketScanner />
       <LatestDrawCard />
       <Disclaimer className="pt-4" />
     </div>

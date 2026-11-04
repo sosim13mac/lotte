@@ -14,6 +14,7 @@
 | 상태관리 | Zustand |
 | 인증 | Supabase Auth — **Google 로그인만** |
 | DB | Supabase Postgres (RLS) |
+| QR / OCR | 브라우저 `BarcodeDetector` → 미지원 시 `jsQR`, `Tesseract.js` (판매점 코드). 모두 기기 안에서 실행 |
 
 ## 빠른 시작 (데모 모드)
 
@@ -79,6 +80,22 @@ Authentication → URL Configuration 의 Redirect URLs 에 `https://<도메인>/
 로그인 흐름: `/login` → Google → `/auth/callback` (세션 교환) → 생년월일이 없으면 `/onboarding` → `/`.
 만 19세 미만은 온보딩에서 이용이 제한됩니다 (복권 및 복권기금법).
 
+## 티켓 사진 등록 (QR + OCR)
+
+`src/components/scan/TicketScanner.tsx` · `src/lib/scan/*`
+
+1. 사진 1장 선택(촬영/앨범) → 브라우저 캔버스로 디코딩 (긴 변 2000px 이하로 축소, EXIF 회전 반영)
+2. **상단 40%** 에서 QR 디텍트 — `BarcodeDetector`(Android Chrome, Safari 17+) → 미지원·실패 시 `jsQR` 로 여러 해상도 재시도 → 그래도 없으면 사진 전체
+3. QR 원문(`...?v=1248q031219283342...`)을 파싱해 회차·게임 번호 추출 (`src/lib/lotto/qr.ts`)
+4. **하단 30%** 를 확대·이진화한 뒤 `Tesseract.js` OCR → 숫자 7자리 판매점 코드 추출 (`src/lib/scan/storeCode.ts`, O→0·l→1 같은 OCR 혼동 보정)
+5. QR + 판매점 코드 성공 → `tickets` 자동 insert (`amount = 게임 수 x 1,000원`, 명당 DB 에 있으면 판매점 이름 자동 채움)
+6. 실패 시 수동 입력 fallback — QR 실패면 번호 직접 입력(로또 용지 같은 7칸 번호판), 판매점 코드만 실패면 번호는 채워진 채로 코드만 입력
+
+- **사진 원본은 서버로 보내거나 저장하지 않습니다.** DB 에는 QR 텍스트(`qr_raw`)와 판매점 코드만 들어갑니다. 같은 QR 은 다시 등록되지 않습니다.
+- Tesseract 워커·WASM 엔진·영문 데이터는 `npm install` 시 `public/tesseract/` 로 복사되어 자체 호스팅됩니다 (CDN 불필요 → PWA/WebView 에서도 동작).
+- QR 에는 발행일시가 없어서, 지난 회차 티켓은 OCR 텍스트에 발행일시가 보이면 그 값을, 없으면 추첨일 정오로 구매 시각을 추정합니다.
+- 판매점 코드는 요구사항대로 **숫자 7자리**로 가정했습니다. 실제 티켓 인쇄 형식이 다르면 `STORE_CODE_LENGTH` 와 스캔 구간(`scanTicket.ts`)만 바꾸면 됩니다.
+
 ## DB 스키마
 
 `supabase/migrations/20261104000100_init_schema.sql`
@@ -117,7 +134,8 @@ src/
     offline/                          서비스 워커 오프라인 페이지
   components/                         UI 컴포넌트
   lib/
-    lotto/                            회차 계산 · 당첨 등수 · 생일수 등 순수 함수
+    lotto/                            회차 계산 · 당첨 등수 · 생일수 · QR 파서 등 순수 함수
+    scan/                             사진 → QR / OCR 파이프라인 (브라우저 전용)
     repo/                             데이터 접근 계층 (Supabase 구현 / 데모 구현)
     supabase/                         브라우저 · 서버 · 미들웨어 클라이언트
     nativeBridge.ts                   Flutter WebView 브리지
@@ -146,6 +164,7 @@ public/
 | `npm run build` / `npm start` | 프로덕션 빌드 / 실행 |
 | `npm run lint` / `npm run typecheck` | ESLint / 타입 검사 |
 | `npm test` | 단위 테스트 (Vitest) |
+| `node scripts/copy-tesseract-assets.mjs` | OCR 엔진 자산을 `public/tesseract` 로 복사 (postinstall 에서 자동 실행) |
 | `node scripts/render-icons.mjs` | `public/icon.svg` → PWA PNG 아이콘 재생성 (Playwright) |
 
 ## 알려진 사항
