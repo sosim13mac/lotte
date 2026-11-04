@@ -15,18 +15,21 @@ export type Database = {
           id: string;
           email: string | null;
           birth_date: string | null;
+          monthly_budget: number | null;
           created_at: string;
         };
         Insert: {
           id: string;
           email?: string | null;
           birth_date?: string | null;
+          monthly_budget?: number | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           email?: string | null;
           birth_date?: string | null;
+          monthly_budget?: number | null;
           created_at?: string;
         };
         Relationships: [];
@@ -45,6 +48,7 @@ export type Database = {
           profit: number;
           qr_raw: string | null;
           opened_at: string | null;
+          settled_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -143,7 +147,12 @@ export type Database = {
       };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      get_ledger_stats: { Args: Record<PropertyKey, never>; Returns: Json };
+      compute_win_amount: { Args: { p_games: Json; p_round: number }; Returns: number };
+      settle_round: { Args: { p_round: number }; Returns: number };
+      refresh_store_stats: { Args: { p_codes?: string[] | null }; Returns: number };
+    };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
   };

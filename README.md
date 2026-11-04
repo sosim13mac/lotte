@@ -137,6 +137,59 @@ AI 코멘트는 감점 요인을 바탕으로 한 규칙 기반 문장입니다 
 - 추첨 전 회차는 카운트다운과 함께 가려진 상태로 보이고, 눈 아이콘으로 번호를 미리 볼 수 있습니다
 - `prefers-reduced-motion` 이면 흔들림·컨페티 없이 즉시 공개, 지원 기기에서는 진동 피드백
 
+## 자동 가계부 (`/stats`)
+
+티켓만 등록하면 자동으로 집계됩니다. 집계 쿼리는 `get_ledger_stats()` RPC (security invoker → RLS 로 본인 티켓만) 이고,
+데모 모드에서는 같은 규칙의 TS 구현(`src/lib/ledger.ts`)을 씁니다. 두 구현은 Postgres 16 에서 무작위 티켓 300장으로 결과가 완전히 같은지 확인했습니다.
+
+- 지표: 총 구매액 · 총 당첨액 · 손익 · ROI · 주 평균 구매액(첫 구매부터 지금까지) · 구매 주기(구매한 날 사이 평균 간격)
+- 월별 구매·당첨 묶은 막대 차트 (최근 6개월), 요일 x 시간대 히트맵 — 모든 차트에 툴팁(키보드 포커스 포함)과 "표로 보기" 제공
+- 월 예산 슬라이더 → 이번 달 구매액이 **80%** 를 넘으면 앱 내 토스트 + 휴대폰 알림(권한 허용 시), 100% 초과 시 한 번 더 (월 1회씩)
+- 구매 내역 표: 날짜 · 회차 · 구매점 · 구매액 · 당첨액 · 손익, [당첨만] 필터
+- 차트 색은 dataviz 기본 팔레트를 다크 표면(`#14172E`) 기준으로 검증한 값입니다 (`src/app/globals.css` 의 `--viz-*`)
+
+### 당첨금 자동 정산
+
+- `tickets` insert/update 트리거: 이미 추첨된 회차의 티켓은 등록 즉시 `win_amount` 계산 (추첨 후에 등록하는 경우가 많음)
+- `settle_round(round)`: 크롤러가 당첨번호를 저장한 뒤 그 회차 티켓 전체를 재정산 (service_role 전용)
+- 4·5등은 고정(5만/5천원), 1~3등은 `winning_draws.prize_amounts` 의 회차별 1게임 당첨금
+
+## 토요일 크롤링 (Edge Function `crawl-draw`)
+
+`supabase/functions/crawl-draw` — 동행복권에서 당첨번호(JSON), 등위별 당첨금 표, 1·2등 배출점을 가져와
+`winning_draws` 저장 → `settle_round` 로 `tickets.win_amount` 갱신 → `stores` 의 1·2등 배출 횟수·명당(`is_hot`: 1등 2회↑ 또는 2등 5회↑) 갱신.
+새 판매점 주소는 카카오 로컬 API 로 좌표를 붙입니다.
+
+`supabase/migrations/20261104000300_schedule_crawl.sql` 의 pg_cron 잡이 **토요일 20:35 KST 부터 10분 간격**으로 호출하고
+(발표 지연 대비 자정까지), 일요일 오전에 한 번 더 당첨금·배출점을 보충합니다. 이미 저장된 회차는 건너뜁니다.
+
+설정 (값은 git 에 넣지 마세요):
+
+```bash
+npx supabase functions deploy crawl-draw --no-verify-jwt
+```
+
+```bash
+npx supabase secrets set CRON_SECRET=<긴 임의 문자열> KAKAO_REST_API_KEY=<카카오 REST API 키>
+```
+
+SQL Editor 에서 pg_cron 이 쓸 값을 Vault 에 저장:
+
+```sql
+select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');
+select vault.create_secret('<CRON_SECRET 과 같은 값>', 'crawl_cron_secret');
+```
+
+과거 회차 채우기 (한 번에 최대 30회):
+
+```bash
+curl -X POST "https://<project-ref>.supabase.co/functions/v1/crawl-draw" -H "Authorization: Bearer $CRON_SECRET" -H "Content-Type: application/json" -d '{"from": 1219, "to": 1248}'
+```
+
+> 동행복권 응답 형식은 예고 없이 바뀔 수 있습니다. 파서는 `supabase/functions/_shared/dhlottery.ts` 에 모여 있고
+> `tests/dhlottery.test.ts` 의 예시 HTML/JSON 으로 테스트합니다. (개발 환경에서 동행복권 사이트에 직접 접속할 수 없어 실제 응답으로는 검증하지 못했습니다.)
+> 판매점 코드가 7자리가 아니면 `stores` 에는 넣지 않고, `winning_draws.store_codes` 에 원본 ID 만 남깁니다.
+
 ## DB 스키마
 
 `supabase/migrations/20261104000100_init_schema.sql`
@@ -184,7 +237,9 @@ src/
   middleware.ts                       세션 갱신 + 비로그인 리다이렉트
 supabase/
   config.toml                         Google 로그인만 활성화, Storage 비활성화
-  migrations/                         스키마
+  migrations/                         스키마 · 정산/가계부 함수 · pg_cron 스케줄
+  functions/crawl-draw/               토요일 당첨번호 크롤러 (Deno)
+  functions/_shared/                  동행복권 파서 · 카카오 지오코딩 · 회차 계산
   seed.sql                            로컬 전용 샘플 판매점
 public/
   manifest.json, sw.js, icons/        PWA
@@ -204,7 +259,7 @@ public/
 | `npm run dev` | 개발 서버 |
 | `npm run build` / `npm start` | 프로덕션 빌드 / 실행 |
 | `npm run lint` / `npm run typecheck` | ESLint / 타입 검사 |
-| `npm test` | 단위 테스트 (Vitest) |
+| `npm test` | 단위 테스트 (Vitest) — 추천/품질/QR/OCR 파서/가계부/크롤러 파서/법적 문구 가드 |
 | `node scripts/copy-tesseract-assets.mjs` | OCR 엔진 자산을 `public/tesseract` 로 복사 (postinstall 에서 자동 실행) |
 | `node scripts/render-icons.mjs` | `public/icon.svg` → PWA PNG 아이콘 재생성 (Playwright) |
 

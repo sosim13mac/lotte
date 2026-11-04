@@ -41,7 +41,13 @@ export const DEMO_STORES: Store[] = [
 export const DEMO_DREAMS: DreamEntry[] = DREAM_SEED.map(([keyword, a, b]) => ({ keyword, numbers: [a, b] }));
 
 export function demoProfile(): Profile {
-  return { id: DEMO_USER_ID, email: 'demo@zzolgit.app', birth_date: '1992-08-15', created_at: nowIso() };
+  return {
+    id: DEMO_USER_ID,
+    email: 'demo@zzolgit.app',
+    birth_date: '1992-08-15',
+    monthly_budget: 30_000,
+    created_at: nowIso(),
+  };
 }
 
 function makeDraw(rng: Rng, round: number): WinningDraw {
@@ -133,6 +139,7 @@ export function buildDemoDataset(now = Date.now()): DemoDataset {
       profit: win - amount,
       qr_raw: null,
       opened_at: opened ? purchase.toISOString() : null,
+      settled_at: drawTime(round).toISOString(),
       created_at: purchase.toISOString(),
     });
   });
@@ -153,6 +160,7 @@ export function buildDemoDataset(now = Date.now()): DemoDataset {
     profit: -pendingGames.length * GAME_PRICE,
     qr_raw: null,
     opened_at: null,
+    settled_at: null,
     created_at: nowIso(),
   });
 

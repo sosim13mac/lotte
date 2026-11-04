@@ -395,6 +395,10 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# 토요일 당첨번호 크롤러: pg_cron 이 Authorization: Bearer <CRON_SECRET> 으로 호출 (JWT 검증 대신 자체 시크릿 검사)
+[functions.crawl-draw]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

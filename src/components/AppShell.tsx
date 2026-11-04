@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { BottomNav } from '@/components/BottomNav';
+import { BudgetWatcher } from '@/components/BudgetWatcher';
 import { Splash } from '@/components/Splash';
+import { Toaster } from '@/components/Toaster';
 import { IS_DEMO } from '@/lib/env';
 import { latestDrawnRound } from '@/lib/lotto/round';
 import { useAppStore } from '@/store/useAppStore';
@@ -58,6 +60,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <BottomNav badges={{ '/logs': sealed }} />
+      <Toaster />
+      <BudgetWatcher />
     </>
   );
 }

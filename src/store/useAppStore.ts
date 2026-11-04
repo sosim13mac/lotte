@@ -14,6 +14,12 @@ import {
 
 export type AppStatus = 'idle' | 'loading' | 'ready' | 'unauthenticated' | 'error';
 
+export interface Toast {
+  id: number;
+  text: string;
+  tone: 'info' | 'warning';
+}
+
 interface AppState {
   status: AppStatus;
   error: string | null;
@@ -24,7 +30,9 @@ interface AppState {
   /** 최근 회차 번호 (내림차순, 최대 20개) — 품질 평가의 '최근 20회 1등 번호' */
   recentRounds: number[];
   dreamMap: DreamEntry[];
+  toast: Toast | null;
 
+  showToast: (text: string, tone?: Toast['tone']) => void;
   bootstrap: (opts?: { force?: boolean }) => Promise<void>;
   refreshTickets: () => Promise<void>;
   loadDraws: (rounds: number[]) => Promise<void>;
@@ -47,6 +55,11 @@ export const useAppStore = create<AppState>()((set, get) => ({
   draws: {},
   recentRounds: [],
   dreamMap: [],
+  toast: null,
+
+  showToast(text, tone = 'info') {
+    set({ toast: { id: Date.now(), text, tone } });
+  },
 
   async bootstrap(opts) {
     const { status } = get();

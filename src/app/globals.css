@@ -4,6 +4,21 @@
 
 :root {
   color-scheme: dark;
+
+  /* 차트 색 역할 (dataviz 기본 팔레트, 다크 표면 #14172E 기준 6가지 검사 통과) */
+  --viz-grid: #2a2f55;
+  --viz-series-1: #3987e5; /* 범주 1: 구매액 */
+  --viz-series-2: #d95926; /* 범주 2: 당첨액 */
+  /* 순차(파랑 한 색) — 다크 모드라 낮은 값이 표면 쪽 */
+  --viz-seq-0: #1c2040;
+  --viz-seq-1: #104281;
+  --viz-seq-2: #1c5cab;
+  --viz-seq-3: #2a78d6;
+  --viz-seq-4: #5598e7;
+  --viz-seq-5: #9ec5f4;
+  /* 상태 (아이콘 + 문구와 함께만 사용) */
+  --status-warning: #fab219;
+  --status-critical: #d03b3b;
 }
 
 html,

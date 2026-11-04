@@ -1,10 +1,11 @@
+import { computeLedgerStats } from '@/lib/ledger';
 import { GAME_PRICE } from '@/lib/lotto/constants';
 import { ticketResult } from '@/lib/lotto/prize';
 import { latestDrawnRound } from '@/lib/lotto/round';
 import { buildDemoDataset, DEMO_DREAMS, DEMO_STORES, DEMO_USER_ID, demoProfile, type DemoDataset } from './demoData';
 import { DuplicateTicketError, type Profile, type Repo, type Ticket } from './types';
 
-const STORAGE_KEY = 'zzolgit:demo:v1';
+const STORAGE_KEY = 'zzolgit:demo:v2';
 
 interface DemoState extends DemoDataset {
   profile: Profile;
@@ -54,7 +55,13 @@ export function createDemoRepo(): Repo {
   const settle = (t: Ticket): Ticket => {
     const draw = get().draws.find((d) => d.round === t.round);
     const win = draw ? ticketResult(t.games, draw).total : 0;
-    return { ...t, amount: t.games.length * GAME_PRICE, win_amount: win, profit: win - t.games.length * GAME_PRICE };
+    return {
+      ...t,
+      amount: t.games.length * GAME_PRICE,
+      win_amount: win,
+      profit: win - t.games.length * GAME_PRICE,
+      settled_at: draw ? (t.settled_at ?? new Date().toISOString()) : null,
+    };
   };
 
   return {
@@ -96,6 +103,7 @@ export function createDemoRepo(): Repo {
         profit: 0,
         qr_raw: input.qr_raw ?? null,
         opened_at: null,
+        settled_at: null,
         created_at: now,
       });
       s.tickets.unshift(ticket);
@@ -123,6 +131,11 @@ export function createDemoRepo(): Repo {
 
     async listDreamMap() {
       return DEMO_DREAMS;
+    },
+
+    async getLedgerStats() {
+      await delay(80);
+      return computeLedgerStats(get().tickets);
     },
 
     async findStore(code) {

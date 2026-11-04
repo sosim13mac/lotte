@@ -1,3 +1,4 @@
+import type { LedgerStats } from '@/lib/ledger';
 import { GAME_PRICE } from '@/lib/lotto/constants';
 import { getBrowserSupabase } from '@/lib/supabase/client';
 import type { Database } from '@/types/database';
@@ -100,6 +101,12 @@ export function createSupabaseRepo(): Repo {
       const { data, error } = await sb.from('dream_map').select('keyword, numbers');
       if (error) throw error;
       return data;
+    },
+
+    async getLedgerStats() {
+      const { data, error } = await sb.rpc('get_ledger_stats');
+      if (error) throw error;
+      return data as unknown as LedgerStats;
     },
 
     async findStore(code) {

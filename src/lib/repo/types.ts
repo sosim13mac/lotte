@@ -1,3 +1,4 @@
+import type { LedgerStats } from '@/lib/ledger';
 import type { Database } from '@/types/database';
 
 type Tables = Database['public']['Tables'];
@@ -24,7 +25,7 @@ export interface NewTicket {
   qr_raw?: string | null;
 }
 
-export type ProfilePatch = Partial<Pick<Profile, 'birth_date'>>;
+export type ProfilePatch = Partial<Pick<Profile, 'birth_date' | 'monthly_budget'>>;
 export type TicketPatch = Partial<
   Pick<Ticket, 'opened_at' | 'store_code' | 'store_name' | 'round' | 'games' | 'purchase_date'>
 >;
@@ -49,6 +50,8 @@ export interface Repo {
   /** rounds 를 주면 해당 회차만, 아니면 최신순 limit 개 */
   listDraws(opts?: { rounds?: number[]; limit?: number }): Promise<WinningDraw[]>;
   listDreamMap(): Promise<DreamEntry[]>;
+  /** 가계부 집계 (Supabase: get_ledger_stats RPC / 데모: 같은 규칙의 TS 계산) */
+  getLedgerStats(): Promise<LedgerStats>;
   /** 판매점 코드 → 판매점 (명당 DB 에 없으면 null) */
   findStore(code: string): Promise<Store | null>;
   signOut(): Promise<void>;
