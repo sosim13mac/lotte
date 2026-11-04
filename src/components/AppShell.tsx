@@ -54,7 +54,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="py-1.5">데모 모드 · 샘플 데이터로 동작 중 (Supabase 미설정)</div>
         </div>
       )}
-      <main className="mx-auto min-h-dvh max-w-[480px] px-4 pb-[calc(96px+env(safe-area-inset-bottom))]">
+      <main className="mx-auto min-h-dvh max-w-[480px] overflow-x-clip px-4 pb-[calc(96px+env(safe-area-inset-bottom))]">
         {children}
       </main>
       <BottomNav badges={{ '/logs': sealed }} />
