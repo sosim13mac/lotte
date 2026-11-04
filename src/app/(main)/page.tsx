@@ -1,8 +1,10 @@
 import { Disclaimer } from '@/components/Disclaimer';
+import { HomeScanSection } from '@/components/home/HomeScanSection';
 import { LatestDrawCard } from '@/components/home/LatestDrawCard';
 import { NextDrawCard } from '@/components/home/NextDrawCard';
+import { QuickQualityCard } from '@/components/home/QuickQualityCard';
+import { RecommendCard } from '@/components/home/RecommendCard';
 import { Logo } from '@/components/Logo';
-import { TicketScanner } from '@/components/scan/TicketScanner';
 
 export default function HomePage() {
   return (
@@ -11,7 +13,9 @@ export default function HomePage() {
         <Logo className="text-[28px]" />
       </header>
       <NextDrawCard />
-      <TicketScanner />
+      <RecommendCard />
+      <HomeScanSection />
+      <QuickQualityCard />
       <LatestDrawCard />
       <Disclaimer className="pt-4" />
     </div>

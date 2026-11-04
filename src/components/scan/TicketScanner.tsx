@@ -93,8 +93,8 @@ export function TicketScanner({
   return (
     <section ref={sectionRef} id="scan" className="card scroll-mt-4">
       <div className="mb-4">
-        <h2 className="section-title">티켓 등록</h2>
-        <p className="mt-1 text-sm text-fog-300">사진 한 장이면 QR과 판매점 코드를 읽어 자동으로 저장해요.</p>
+        <h2 className="section-title">티켓 등록 · 품질 평가</h2>
+        <p className="mt-1 text-sm text-fog-300">사진 한 장이면 QR과 판매점 코드를 읽어 자동 저장하고, 번호 품질도 평가해요.</p>
       </div>
 
       {phase.kind === 'idle' && (
