@@ -71,14 +71,14 @@ export function RecommendCard() {
       </div>
 
       <div className="flex items-center gap-2 rounded-2xl bg-ink-700/60 px-3 py-2.5 text-sm">
-        <Cake className="h-4 w-4 text-gold" />
+        <Cake className="h-4 w-4 text-gold-deep" />
         <span className="text-fog-300">생일수</span>
         <Ball n={bday} hidden={!bday} size="xs" />
         <span className="ml-auto text-xs text-fog-500">(년+월+일) % 45 + 1</span>
       </div>
 
       <label htmlFor="dream" className="label mt-3 flex items-center gap-1.5">
-        <Moon className="h-4 w-4 text-gold" /> 간밤의 꿈 <span className="text-fog-500">(선택)</span>
+        <Moon className="h-4 w-4 text-gold-deep" /> 간밤의 꿈 <span className="text-fog-500">(선택)</span>
       </label>
       <input
         id="dream"
@@ -93,7 +93,7 @@ export function RecommendCard() {
           <button
             key={k}
             type="button"
-            className={cn('chip shrink-0', dream?.keyword === k && 'bg-gold/20 text-gold')}
+            className={cn('chip shrink-0', dream?.keyword === k && 'bg-gold/20 text-gold-deep')}
             onClick={() => setDreamText(`${k}꿈`)}
           >
             {k}
@@ -148,7 +148,7 @@ export function RecommendCard() {
                         <Ball key={n} n={n} size="sm" />
                       ))}
                     </div>
-                    <span className="num shrink-0 rounded-full bg-gold/15 px-2 py-0.5 text-[11px] font-bold text-gold-soft">
+                    <span className="num shrink-0 rounded-full bg-gold/15 px-2 py-0.5 text-[11px] font-bold text-gold-deep">
                       품질 {q.score}
                     </span>
                   </div>

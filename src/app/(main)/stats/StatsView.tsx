@@ -44,7 +44,7 @@ export function StatsView() {
       {error && <p className="mb-3 rounded-2xl bg-gain/10 px-4 py-3 text-sm text-gain">{error}</p>}
 
       <div className={cn('space-y-4 transition-opacity', refreshing && stats && 'opacity-70')}>
-        <section className="grid grid-cols-2 gap-2.5" aria-label="요약 지표">
+        <section className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-6" aria-label="요약 지표">
           <StatTile label="총 구매액" value={formatWon(s?.total_spent ?? 0)} sub={`티켓 ${s?.ticket_count ?? 0}장`} />
           <StatTile label="총 당첨액" value={formatWon(s?.total_won ?? 0)} sub={`당첨 티켓 ${s?.win_ticket_count ?? 0}장`} />
           <StatTile
@@ -67,10 +67,20 @@ export function StatsView() {
           />
         </section>
 
-        <BudgetCard />
-        <MonthlyChart monthly={stats?.monthly ?? []} />
-        <WeekdayHeatmap cells={stats?.heatmap ?? []} />
-        <LedgerTable tickets={tickets} />
+        <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0">
+          <div className="lg:col-start-1 lg:row-start-1">
+            <BudgetCard />
+          </div>
+          <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+            <MonthlyChart monthly={stats?.monthly ?? []} />
+          </div>
+          <div className="lg:col-start-1 lg:row-start-2">
+            <WeekdayHeatmap cells={stats?.heatmap ?? []} />
+          </div>
+          <div className="lg:col-span-2">
+            <LedgerTable tickets={tickets} />
+          </div>
+        </div>
       </div>
     </>
   );

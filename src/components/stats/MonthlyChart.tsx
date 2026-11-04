@@ -62,7 +62,7 @@ export function MonthlyChart({ monthly }: { monthly: LedgerMonth[] }) {
           const active = hover === i;
           return (
             <g key={d.month}>
-              {active && <rect x={LEFT + groupW * i + 2} y={TOP} width={groupW - 4} height={H} rx={6} fill="#ffffff" opacity={0.04} />}
+              {active && <rect x={LEFT + groupW * i + 2} y={TOP} width={groupW - 4} height={H} rx={6} fill="#0A3329" opacity={0.05} />}
               <path d={barPath(x1, y(d.spent), BAR, TOP + H - y(d.spent))} fill="var(--viz-series-1)" />
               <path d={barPath(x2, y(d.won), BAR, TOP + H - y(d.won))} fill="var(--viz-series-2)" />
               <text x={cx} y={TOP + H + 15} textAnchor="middle" className="fill-fog-400 text-[10px]">
@@ -89,7 +89,7 @@ export function MonthlyChart({ monthly }: { monthly: LedgerMonth[] }) {
       </svg>
       {hover !== null && (
         <div
-          className="pointer-events-none absolute top-0 z-10 w-36 -translate-x-1/2 rounded-xl border border-white/10 bg-ink-700 px-3 py-2 text-xs shadow-card"
+          className="pointer-events-none absolute top-0 z-10 w-36 -translate-x-1/2 rounded-xl border border-ink-500 bg-ink-700 px-3 py-2 text-xs shadow-card"
           style={{ left: `${((LEFT + groupW * hover + groupW / 2) / W) * 100}%` }}
           role="tooltip"
         >
@@ -121,7 +121,7 @@ export function MonthlyChart({ monthly }: { monthly: LedgerMonth[] }) {
       </thead>
       <tbody>
         {data.map((d) => (
-          <tr key={d.month} className="border-t border-white/5">
+          <tr key={d.month} className="border-t border-ink-600">
             <td className="py-1.5">{d.month}</td>
             <td className="text-right">{formatWon(d.spent)}</td>
             <td className="text-right">{formatWon(d.won)}</td>

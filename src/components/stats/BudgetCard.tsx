@@ -57,7 +57,8 @@ export function BudgetCard() {
         step={STEP}
         value={budget}
         onChange={(e) => change(Number(e.target.value))}
-        className="mt-4 w-full accent-[#FFC94A]"
+        className="range-mint mt-4 w-full"
+        style={{ '--p': `${Math.min(100, (budget / MAX) * 100)}%` } as React.CSSProperties}
         aria-label="월 예산"
         aria-valuetext={budget > 0 ? formatWon(budget) : '미설정'}
       />

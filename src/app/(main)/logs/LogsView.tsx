@@ -325,7 +325,7 @@ export function LogsView() {
             >
               {summary.won > 0 || summary.best ? (
                 <>
-                  <p className="flex items-center gap-2 font-display text-xl text-gold">
+                  <p className="flex items-center gap-2 font-display text-xl text-gold-deep">
                     <PartyPopper className="h-5 w-5" /> {active}회 {summary.best ? RANK_LABEL[summary.best] : ''} 당첨!
                   </p>
                   <p className="mt-1 text-sm text-fog-300">
@@ -367,6 +367,7 @@ export function LogsView() {
           )}
         </AnimatePresence>
 
+        <div className="space-y-3 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0">
         {roundTickets.map((t, i) => (
           <TicketCard
             key={t.id}
@@ -381,10 +382,11 @@ export function LogsView() {
             onDelete={() => void deleteTicket(t)}
           />
         ))}
+        </div>
 
         {roundTickets.length === 0 && (
           <div className="card flex flex-col items-center gap-3 py-10 text-center">
-            <Sparkles className="h-8 w-8 text-gold" />
+            <Sparkles className="h-8 w-8 text-gold-deep" />
             <p className="font-display text-lg">{tickets.length ? '이 회차엔 티켓이 없어요' : '아직 등록한 티켓이 없어요'}</p>
             <p className="text-sm text-fog-300">티켓 사진 한 장이면 자동으로 등록돼요.</p>
             <Link href="/?scan=1" className="btn-gold mt-1 px-6">
@@ -395,12 +397,12 @@ export function LogsView() {
 
         {/* 쫄깃 오픈 모드 버튼 — 하단 탭 위에 고정 */}
         {draw && hasSealed && (
-          <div className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] z-20 pt-1">
-            <div className="grid grid-cols-2 gap-2 rounded-3xl border border-white/10 bg-ink-800/90 p-2 shadow-card backdrop-blur-xl">
+          <div className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] z-20 pt-1 lg:bottom-6 lg:mx-auto lg:max-w-xl">
+            <div className="grid grid-cols-2 gap-2 rounded-3xl border border-ink-500 bg-ink-800/90 p-2 shadow-card backdrop-blur-xl">
               <button className="btn-gold" onClick={openAll} disabled={running}>
                 <Zap className="h-4 w-4" /> 한번에 짠!
               </button>
-              <button className="btn bg-chewy text-white hover:bg-chewy-soft" onClick={openNextRow} disabled={running || !next}>
+              <button className="btn bg-chewy text-deep hover:bg-chewy-soft" onClick={openNextRow} disabled={running || !next}>
                 <Sparkles className="h-4 w-4" />
                 {lineLabel}
               </button>

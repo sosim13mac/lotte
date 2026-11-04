@@ -84,7 +84,7 @@ export function OnboardingView({ next }: { next: string }) {
         />
 
         <div className="card mt-6 flex items-center gap-4">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/15 text-gold">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/15 text-gold-deep">
             <Cake className="h-6 w-6" />
           </span>
           <div className="flex-1">

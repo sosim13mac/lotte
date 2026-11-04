@@ -23,9 +23,9 @@ export function SavedTicketCard({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <CircleCheck className="h-6 w-6 text-gold" />
+        <CircleCheck className="h-6 w-6 text-gold-deep" />
         <p className="font-display text-lg">티켓 등록 완료!</p>
-        {auto && <span className="chip ml-auto text-gold">사진 자동 인식</span>}
+        {auto && <span className="chip ml-auto text-gold-deep">사진 자동 인식</span>}
       </div>
 
       <dl className="grid grid-cols-3 gap-2 text-center">

@@ -2,11 +2,11 @@ import { ballTone, type BallTone } from '@/lib/lotto/constants';
 import { cn } from '@/lib/cn';
 
 export const BALL_TONE_CLASS: Record<BallTone, string> = {
-  y: 'bg-ball-y text-ink',
-  b: 'bg-ball-b text-ink',
-  r: 'bg-ball-r text-ink',
-  g: 'bg-ball-g text-ink',
-  n: 'bg-ball-n text-ink',
+  y: 'bg-ball-y text-deep',
+  b: 'bg-ball-b text-deep',
+  r: 'bg-ball-r text-deep',
+  g: 'bg-ball-g text-deep',
+  n: 'bg-ball-n text-deep',
 };
 
 export const BALL_SIZE_CLASS = {

@@ -32,7 +32,7 @@ export function LatestDrawCard() {
         <span className="text-fog-500">+</span>
         <Ball n={draw.bonus} size="md" />
       </div>
-      <Link href="/logs" className="mt-4 flex items-center justify-end gap-1 text-sm font-medium text-gold">
+      <Link href="/logs" className="mt-4 flex items-center justify-end gap-1 text-sm font-medium text-gold-deep">
         내 티켓과 맞춰보기 <ChevronRight className="h-4 w-4" />
       </Link>
     </section>

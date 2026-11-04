@@ -46,7 +46,7 @@ export function WeekdayHeatmap({ cells }: { cells: LedgerHeatCell[] }) {
                   className="aspect-[1.6] rounded-[4px] outline-none ring-fog/70 transition focus-visible:ring-2"
                   style={{
                     background: RAMP[bin(count)],
-                    boxShadow: hover === key || isPeak ? 'inset 0 0 0 2px rgba(244,245,255,0.85)' : undefined,
+                    boxShadow: hover === key || isPeak ? 'inset 0 0 0 2px rgba(10,51,41,0.85)' : undefined,
                   }}
                   aria-label={`${DAY_LABEL[dow]}요일 ${SLOTS[slot]} ${count}회`}
                   onPointerEnter={() => setHover(key)}
@@ -76,7 +76,7 @@ export function WeekdayHeatmap({ cells }: { cells: LedgerHeatCell[] }) {
             '아직 데이터가 없어요'
           )}
         </p>
-        <span className="flex shrink-0 items-center gap-1" aria-label="색이 밝을수록 구매 횟수가 많음">
+        <span className="flex shrink-0 items-center gap-1" aria-label="색이 진할수록 구매 횟수가 많음">
           적음
           {RAMP.slice(1).map((c) => (
             <span key={c} className="h-2.5 w-2.5 rounded-[3px]" style={{ background: c }} />
@@ -101,7 +101,7 @@ export function WeekdayHeatmap({ cells }: { cells: LedgerHeatCell[] }) {
       </thead>
       <tbody>
         {DAYS.map((dow) => (
-          <tr key={dow} className="border-t border-white/5">
+          <tr key={dow} className="border-t border-ink-600">
             <td className="py-1.5">{DAY_LABEL[dow]}</td>
             {SLOTS.map((_, slot) => (
               <td key={slot} className="text-right">

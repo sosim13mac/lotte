@@ -28,7 +28,7 @@ export function LedgerTable({ tickets }: { tickets: Ticket[] }) {
           ].map(([value, label]) => (
             <button
               key={String(value)}
-              className={cn('chip', winsOnly === value && 'bg-gold text-ink')}
+              className={cn('chip', winsOnly === value && 'bg-gold text-deep')}
               aria-pressed={winsOnly === value}
               onClick={() => {
                 setWinsOnly(value as boolean);
@@ -66,7 +66,7 @@ export function LedgerTable({ tickets }: { tickets: Ticket[] }) {
               const p = kstParts(t.purchase_date);
               const settled = Boolean(t.settled_at);
               return (
-                <tr key={t.id} className="border-t border-white/5">
+                <tr key={t.id} className="border-t border-ink-600">
                   <td className="py-2 text-fog-300">
                     {pad(p.month)}.{pad(p.day)}
                   </td>
@@ -75,7 +75,7 @@ export function LedgerTable({ tickets }: { tickets: Ticket[] }) {
                     {t.store_name ?? t.store_code ?? '-'}
                   </td>
                   <td className="text-right">{t.amount.toLocaleString('ko-KR')}</td>
-                  <td className={cn('text-right', t.win_amount > 0 && 'font-bold text-gold')}>
+                  <td className={cn('text-right', t.win_amount > 0 && 'font-bold text-gold-deep')}>
                     {settled ? t.win_amount.toLocaleString('ko-KR') : '대기'}
                   </td>
                   <td className={cn('text-right', t.profit > 0 ? 'text-gain' : t.profit < 0 ? 'text-loss' : 'text-fog-300')}>

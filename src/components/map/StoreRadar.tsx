@@ -29,12 +29,12 @@ export function StoreRadar({
   const meXY = me ? toXY(me) : null;
 
   return (
-    <div className="relative h-full w-full bg-[radial-gradient(circle_at_center,#1C2040,#0B0D1F)]">
+    <div className="relative h-full w-full bg-[radial-gradient(circle_at_center,#FFFFFF,#DDF5EB)]">
       <svg viewBox={`${-RANGE} ${-RANGE} ${RANGE * 2} ${RANGE * 2}`} className="h-full w-full" role="img" aria-label="주변 판매점 간이 지도">
-        <circle r={1000} fill="none" stroke="#2A2F55" strokeWidth={6} />
-        <circle r={GEOFENCE_RADIUS} fill="rgba(255,201,74,0.05)" stroke="rgba(255,201,74,0.45)" strokeWidth={6} />
-        <line x1={-RANGE} x2={RANGE} y1={0} y2={0} stroke="#2A2F55" strokeWidth={4} />
-        <line y1={-RANGE} y2={RANGE} x1={0} x2={0} stroke="#2A2F55" strokeWidth={4} />
+        <circle r={1000} fill="none" stroke="#BFE6D6" strokeWidth={6} />
+        <circle r={GEOFENCE_RADIUS} fill="rgba(18,161,120,0.06)" stroke="rgba(18,161,120,0.5)" strokeWidth={6} />
+        <line x1={-RANGE} x2={RANGE} y1={0} y2={0} stroke="#BFE6D6" strokeWidth={4} />
+        <line y1={-RANGE} y2={RANGE} x1={0} x2={0} stroke="#BFE6D6" strokeWidth={4} />
         <text x={0} y={-GEOFENCE_RADIUS - 30} textAnchor="middle" className="fill-gold-soft" fontSize={70}>
           500m
         </text>

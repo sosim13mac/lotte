@@ -25,7 +25,7 @@ export function QualityChip({ game, defaultOpen = false }: { game: number[]; def
         className="flex w-full items-center gap-2 rounded-xl px-1 py-1 text-left text-xs text-fog-300 hover:text-fog"
         aria-expanded={open}
       >
-        <span className="num rounded-full bg-gold/15 px-2 py-0.5 font-bold text-gold-soft">품질 {result.score}</span>
+        <span className="num rounded-full bg-gold/15 px-2 py-0.5 font-bold text-gold-deep">품질 {result.score}</span>
         <span className="truncate">{result.label}</span>
         <ChevronDown className={cn('ml-auto h-4 w-4 transition-transform', open && 'rotate-180')} />
       </button>

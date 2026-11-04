@@ -38,7 +38,7 @@ function BoardBall({
     >
       {n}
       {selected && (
-        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-ink">
+        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-deep">
           <Check className="h-3 w-3" strokeWidth={3} />
         </span>
       )}
@@ -104,7 +104,7 @@ export function WinningBoard({
                   선택 {selected.size}개 · 모두 가진 게임 <b className="text-fog">{matchingGames}</b>
                 </>
               )}
-              {mode === 'result' && <b className="text-gold-soft">결과 하이라이트</b>}
+              {mode === 'result' && <b className="text-gold-deep">결과 하이라이트</b>}
             </p>
           </div>
         </>

@@ -74,7 +74,7 @@ export function SettingsView() {
   }
 
   return (
-    <>
+    <div className="lg:mx-auto lg:max-w-2xl">
       <PageHeader title="설정" />
 
       <section className="card space-y-4">
@@ -103,7 +103,7 @@ export function SettingsView() {
             </button>
           </div>
           <p className="mt-2 flex items-center gap-2 text-sm text-fog-300">
-            <Cake className="h-4 w-4 text-gold" /> 내 생일수 <Ball n={lucky} hidden={!lucky} size="xs" />
+            <Cake className="h-4 w-4 text-gold-deep" /> 내 생일수 <Ball n={lucky} hidden={!lucky} size="xs" />
           </p>
           {tooYoung && <p className="mt-1 text-sm text-gain">만 {MIN_AGE}세 이상만 이용할 수 있어요.</p>}
         </div>
@@ -113,7 +113,7 @@ export function SettingsView() {
         <BudgetCard />
       </div>
 
-      <section className="card mt-4 divide-y divide-white/5 py-2">
+      <section className="card mt-4 divide-y divide-ink-600 py-2">
         <h2 className="section-title pb-2 pt-1">알림</h2>
         <Switch
           label="지나가는 길 명당 알림"
@@ -147,7 +147,7 @@ export function SettingsView() {
           <ul className="mt-2">
             {favorites.map((f) => (
               <li key={f.code} className="flex items-center gap-3 py-2">
-                <span className={f.is_hot ? 'text-gold' : 'text-fog-500'} aria-label={f.is_hot ? '명당' : undefined}>
+                <span className={f.is_hot ? 'text-gold-deep' : 'text-fog-500'} aria-label={f.is_hot ? '명당' : undefined}>
                   <Crown className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -185,6 +185,6 @@ export function SettingsView() {
 
       <Disclaimer className="mt-8" />
       <p className="mt-2 text-center text-[11px] text-fog-500">쫄깃로또 v0.1.0</p>
-    </>
+    </div>
   );
 }

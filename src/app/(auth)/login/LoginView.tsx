@@ -91,7 +91,7 @@ export function LoginView({ next, hasError }: { next: string; hasError: boolean 
         <ul className="mt-10 grid w-full grid-cols-2 gap-2 text-left">
           {FEATURES.map(({ Icon, text }) => (
             <li key={text} className="flex items-center gap-2 rounded-2xl bg-ink-800 px-3 py-3 text-[13px] text-fog-300">
-              <Icon className="h-4 w-4 shrink-0 text-gold" />
+              <Icon className="h-4 w-4 shrink-0 text-gold-deep" />
               {text}
             </li>
           ))}
@@ -107,7 +107,7 @@ export function LoginView({ next, hasError }: { next: string; hasError: boolean 
         <button
           onClick={signIn}
           disabled={busy}
-          className="btn h-14 w-full bg-white text-[16px] text-[#1f1f1f] hover:bg-white/90"
+          className="btn h-14 w-full border border-ink-500 bg-white text-[16px] text-[#1f1f1f] hover:bg-ink-700"
         >
           {IS_DEMO ? (
             '데모로 둘러보기'

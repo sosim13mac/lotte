@@ -27,7 +27,7 @@ function Meter({ value, label }: { value: number; label: string }) {
 }
 
 function NoteIcon({ tone }: { tone: QualityNote['tone'] }) {
-  if (tone === 'plus') return <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-gold" aria-label="장점" />;
+  if (tone === 'plus') return <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-gold-deep" aria-label="장점" />;
   if (tone === 'minus') return <CircleMinus className="mt-0.5 h-4 w-4 shrink-0 text-fog-400" aria-label="감점" />;
   return <Info className="mt-0.5 h-4 w-4 shrink-0 text-fog-400" aria-label="참고" />;
 }
@@ -74,9 +74,9 @@ export function QualityReport({ result, compact = false }: { result: QualityResu
       )}
 
       <div className="flex gap-2 rounded-2xl bg-ink-700/70 p-3">
-        <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+        <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-gold-deep" />
         <p className="text-[13px] leading-relaxed text-fog">
-          <span className="mr-1 font-bold text-gold-soft">AI 코멘트</span>
+          <span className="mr-1 font-bold text-gold-deep">AI 코멘트</span>
           {result.comment}
         </p>
       </div>

@@ -16,10 +16,10 @@ export type TicketStatus = 'pending' | 'waiting' | 'sealed' | 'opened';
 function StatusChip({ status, ticket, draw }: { status: TicketStatus; ticket: Ticket; draw: WinningDraw | null }) {
   if (status === 'pending') return <span className="chip">추첨 전</span>;
   if (status === 'waiting') return <span className="chip">결과 대기</span>;
-  if (status === 'sealed') return <span className="chip bg-chewy/15 text-chewy-soft">미개봉</span>;
+  if (status === 'sealed') return <span className="chip bg-chewy/15 text-chewy-deep">미개봉</span>;
   const best = draw ? ticketResult(ticket.games, draw).bestRank : null;
   return best ? (
-    <span className="chip bg-gold/20 font-bold text-gold">{RANK_LABEL[best]} 당첨</span>
+    <span className="chip bg-gold/20 font-bold text-gold-deep">{RANK_LABEL[best]} 당첨</span>
   ) : (
     <span className="chip">낙첨</span>
   );
@@ -44,7 +44,7 @@ function RowBadge({
     const r = gameResult(game, draw);
     key = `done-${r.rank ?? 'x'}`;
     content = r.rank ? (
-      <span className="num inline-flex flex-col items-end rounded-xl bg-gold px-2 py-1 text-right leading-tight text-ink">
+      <span className="num inline-flex flex-col items-end rounded-xl bg-gold px-2 py-1 text-right leading-tight text-deep">
         <b className="text-[13px]">{RANK_LABEL[r.rank]}!</b>
         <span className="text-[10px] font-bold">{r.prize === null ? '금액 집계 중' : formatWon(r.prize)}</span>
       </span>
@@ -54,7 +54,7 @@ function RowBadge({
   } else if (revealedCount > 0) {
     const m = countMatches(game.slice(0, revealedCount), draw.numbers);
     key = `partial-${m}`;
-    content = <span className="num text-xs font-bold text-gold-soft">{m}개 일치…</span>;
+    content = <span className="num text-xs font-bold text-gold-deep">{m}개 일치…</span>;
   }
   return (
     <span className="flex w-[76px] justify-end">
@@ -165,8 +165,8 @@ export function TicketCard({
       </ul>
 
       {total && (
-        <p className="num mt-3 border-t border-white/5 pt-3 text-right text-xs text-fog-300">
-          당첨금 <b className={cn('text-sm', total.total > 0 ? 'text-gold' : 'text-fog')}>{formatWon(total.total)}</b>
+        <p className="num mt-3 border-t border-ink-600 pt-3 text-right text-xs text-fog-300">
+          당첨금 <b className={cn('text-sm', total.total > 0 ? 'text-gold-deep' : 'text-fog')}>{formatWon(total.total)}</b>
           {total.hasUnknownPrize && ' + 집계 중'}
         </p>
       )}

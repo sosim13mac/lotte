@@ -115,7 +115,7 @@ export function ManualTicketForm({
 
   return (
     <form onSubmit={save} className="space-y-4">
-      {notice && <p className="rounded-2xl bg-gold/10 px-4 py-3 text-sm text-gold-soft">{notice}</p>}
+      {notice && <p className="rounded-2xl bg-gold/10 px-4 py-3 text-sm text-gold-deep">{notice}</p>}
 
       <div className="grid grid-cols-[minmax(0,1fr)_88px] gap-2">
         <div>

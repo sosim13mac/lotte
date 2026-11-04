@@ -57,13 +57,13 @@ export function StoreCard({ store, from, onClose }: { store: Store; from: LatLng
         <span
           className={cn(
             'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
-            store.is_hot ? 'bg-gold text-ink' : 'bg-ink-700 text-fog-300',
+            store.is_hot ? 'bg-gold text-deep' : 'bg-ink-700 text-fog-300',
           )}
         >
           <Crown className="h-6 w-6" />
         </span>
         <div className="min-w-0 flex-1">
-          {store.is_hot && <p className="text-[11px] font-bold text-gold">명당</p>}
+          {store.is_hot && <p className="text-[11px] font-bold text-gold-deep">명당</p>}
           <p className="truncate font-bold">{store.name}</p>
           <p className="mt-0.5 text-xs text-fog-400">{store.address}</p>
         </div>

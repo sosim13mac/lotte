@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { Jua, Noto_Sans_KR } from 'next/font/google';
+import { Black_Han_Sans, Noto_Sans_KR } from 'next/font/google';
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
 import './globals.css';
 
 const sans = Noto_Sans_KR({ subsets: ['latin'], variable: '--font-sans', display: 'swap', preload: false });
-const display = Jua({ subsets: ['latin'], weight: '400', variable: '--font-display', display: 'swap', preload: false });
+const display = Black_Han_Sans({ subsets: ['latin'], weight: '400', variable: '--font-display', display: 'swap', preload: false });
 
 export const metadata: Metadata = {
   title: { default: '쫄깃로또', template: '%s · 쫄깃로또' },
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0B0D1F',
-  colorScheme: 'dark',
+  themeColor: '#F1FBF7',
+  colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',

@@ -3,19 +3,19 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
   /* 차트 색 역할 (dataviz 기본 팔레트, 다크 표면 #14172E 기준 6가지 검사 통과) */
-  --viz-grid: #2a2f55;
+  --viz-grid: #d6efe5;
   --viz-series-1: #3987e5; /* 범주 1: 구매액 */
   --viz-series-2: #d95926; /* 범주 2: 당첨액 */
-  /* 순차(파랑 한 색) — 다크 모드라 낮은 값이 표면 쪽 */
-  --viz-seq-0: #1c2040;
-  --viz-seq-1: #104281;
-  --viz-seq-2: #1c5cab;
-  --viz-seq-3: #2a78d6;
-  --viz-seq-4: #5598e7;
-  --viz-seq-5: #9ec5f4;
+  /* 순차(파랑 한 색) — 라이트 모드라 낮은 값이 표면(연한 쪽) */
+  --viz-seq-0: #e6f0fb;
+  --viz-seq-1: #bcd7f7;
+  --viz-seq-2: #8dbbf1;
+  --viz-seq-3: #5598e7;
+  --viz-seq-4: #2a78d6;
+  --viz-seq-5: #104281;
   /* 상태 (아이콘 + 문구와 함께만 사용) */
   --status-warning: #fab219;
   --status-critical: #d03b3b;
@@ -23,14 +23,14 @@
 
 html,
 body {
-  background-color: #0b0d1f;
+  background-color: #f1fbf7;
 }
 
 body {
   @apply font-sans text-fog antialiased;
   min-height: 100dvh;
   -webkit-tap-highlight-color: transparent;
-  background-image: radial-gradient(120% 60% at 50% -10%, rgba(255, 201, 74, 0.1), rgba(11, 13, 31, 0) 60%);
+  background-image: radial-gradient(120% 60% at 50% -10%, rgba(18, 161, 120, 0.12), rgba(241, 251, 247, 0) 60%);
   background-repeat: no-repeat;
 }
 
@@ -60,7 +60,7 @@ body {
     @apply inline-flex h-12 items-center justify-center gap-2 rounded-2xl px-4 text-[15px] font-bold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-gold {
-    @apply btn bg-gold text-ink hover:bg-gold-soft;
+    @apply btn bg-gold text-deep hover:bg-gold-soft;
   }
   .btn-ghost {
     @apply btn bg-ink-700 text-fog hover:bg-ink-600;
@@ -111,4 +111,33 @@ body {
   100% {
     box-shadow: 0 0 0 0 rgba(57, 135, 229, 0);
   }
+}
+
+/* 월 예산 슬라이더 (진행 구간 민트 / 나머지 연한 민트) */
+.range-mint {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #12a178 var(--p, 0%), #d6efe5 var(--p, 0%));
+  outline: none;
+}
+.range-mint::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fff;
+  border: 3px solid #12a178;
+  box-shadow: 0 2px 6px rgba(10, 51, 41, 0.25);
+}
+.range-mint::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #fff;
+  border: 3px solid #12a178;
+}
+.range-mint:focus-visible {
+  box-shadow: 0 0 0 3px rgba(18, 161, 120, 0.35);
 }

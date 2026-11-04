@@ -11,8 +11,8 @@ export interface RoundChip {
 
 const TONE: Record<RoundChip['tone'], string> = {
   pending: 'text-fog-400',
-  sealed: 'text-chewy-soft',
-  win: 'text-gold',
+  sealed: 'text-chewy-deep',
+  win: 'text-gold-deep',
   none: 'text-fog-500',
 };
 
@@ -35,7 +35,7 @@ export function RoundChips({ chips, active, onSelect }: { chips: RoundChip[]; ac
             onClick={() => onSelect(c.round)}
             className={cn(
               'flex shrink-0 flex-col items-start rounded-2xl border px-3 py-2 text-left transition',
-              on ? 'border-gold/60 bg-gold/10' : 'border-white/5 bg-ink-800 hover:bg-ink-700',
+              on ? 'border-gold/60 bg-gold/10' : 'border-ink-600 bg-ink-800 hover:bg-ink-700',
             )}
           >
             <span className={cn('num text-sm font-bold', on ? 'text-fog' : 'text-fog-300')}>{c.round}회</span>

@@ -26,13 +26,13 @@ export function Toaster() {
             initial={{ y: -40, opacity: 0 }}
             animate={{ y: 12, opacity: 1 }}
             exit={{ y: -40, opacity: 0 }}
-            className="pointer-events-auto flex max-w-[440px] items-center gap-2 rounded-2xl border border-white/10 bg-ink-700/95 px-4 py-3 text-sm shadow-card backdrop-blur"
+            className="pointer-events-auto flex max-w-[440px] items-center gap-2 rounded-2xl border border-ink-500 bg-ink-700/95 px-4 py-3 text-sm shadow-card backdrop-blur"
             onClick={() => useAppStore.setState({ toast: null })}
           >
             {toast.tone === 'warning' ? (
               <TriangleAlert className="h-4 w-4 shrink-0 text-[#fab219]" aria-label="주의" />
             ) : (
-              <Info className="h-4 w-4 shrink-0 text-gold" aria-label="알림" />
+              <Info className="h-4 w-4 shrink-0 text-gold-deep" aria-label="알림" />
             )}
             {toast.text}
           </motion.div>

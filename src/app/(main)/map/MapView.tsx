@@ -96,6 +96,7 @@ export function MapView() {
     <>
       <PageHeader title="명당 지도" subtitle="주변 로또 판매점과 1등 배출점" />
 
+      <div className="lg:grid lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-4">
       <button
         type="button"
         role="switch"
@@ -103,11 +104,11 @@ export function MapView() {
         disabled={geofence.busy}
         onClick={() => void geofence.toggle()}
         className={cn(
-          'mb-3 flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition',
-          geofence.active ? 'border-gold/40 bg-gold/10' : 'border-white/5 bg-ink-800',
+          'mb-3 flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition lg:col-start-2 lg:row-start-1',
+          geofence.active ? 'border-gold/40 bg-gold/10' : 'border-ink-600 bg-ink-800',
         )}
       >
-        <Radar className={cn('h-5 w-5 shrink-0', geofence.active ? 'text-gold' : 'text-fog-400')} />
+        <Radar className={cn('h-5 w-5 shrink-0', geofence.active ? 'text-gold-deep' : 'text-fog-400')} />
         <span className="flex-1">
           <span className="block text-sm font-bold">지나가는 길 명당 알림</span>
           <span className="block text-[11px] text-fog-400">명당 500m 안에 들어서면 알려드려요</span>
@@ -117,11 +118,12 @@ export function MapView() {
         </span>
       </button>
 
+      <div className="lg:col-start-1 lg:row-span-2 lg:row-start-1">
       <div className="mb-3 flex items-center gap-2" role="group" aria-label="필터">
         {FILTERS.map(([key, label]) => (
           <button
             key={key}
-            className={cn('chip px-4 py-1.5 text-sm', filter === key && 'bg-gold font-bold text-ink')}
+            className={cn('chip px-4 py-1.5 text-sm', filter === key && 'bg-gold font-bold text-deep')}
             aria-pressed={filter === key}
             onClick={() => setFilter(key)}
           >
@@ -132,7 +134,7 @@ export function MapView() {
         <span className="ml-auto text-xs text-fog-400">{loading ? '불러오는 중…' : `명당 ${hotCount}곳`}</span>
       </div>
 
-      <div className="relative h-[46vh] min-h-[300px] overflow-hidden rounded-3xl border border-white/5 bg-ink-800">
+      <div className="relative h-[46vh] min-h-[300px] overflow-hidden lg:h-[calc(100dvh-260px)] lg:min-h-[480px] rounded-3xl border border-ink-600 bg-ink-800">
         {mode === 'kakao' ? (
           <KakaoStoreMap
             center={center}
@@ -166,8 +168,9 @@ export function MapView() {
           <StoreCard store={selected} from={me} onClose={() => setSelected(null)} />
         </div>
       )}
+      </div>
 
-      <section className="card mt-3 p-2">
+      <section className="card mt-3 p-2 lg:col-start-2 lg:row-start-2 lg:mt-0">
         <h2 className="px-3 pb-1 pt-2 text-sm font-bold text-fog-300">
           {me ? '내 주변' : '지도 중심 주변'} {filtered.length}곳
         </h2>
@@ -192,7 +195,7 @@ export function MapView() {
                   <span
                     className={cn(
                       'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl',
-                      s.is_hot ? 'bg-gold text-ink' : 'bg-ink-700 text-fog-400',
+                      s.is_hot ? 'bg-gold text-deep' : 'bg-ink-700 text-fog-400',
                     )}
                     aria-label={s.is_hot ? '명당' : undefined}
                   >
@@ -213,9 +216,10 @@ export function MapView() {
         </ul>
         {!filtered.length && <p className="py-8 text-center text-sm text-fog-400">조건에 맞는 판매점이 없어요</p>}
       </section>
-      <p className="mt-3 text-center text-[11px] text-fog-500">
+      <p className="mt-3 text-center text-[11px] text-fog-500 lg:col-span-2">
         판매점·배출 기록은 매주 추첨 후 동행복권 1·2등 배출점 정보로 갱신돼요. 명당 = 1등 2회↑ 또는 2등 5회↑
       </p>
+      </div>
     </>
   );
 }

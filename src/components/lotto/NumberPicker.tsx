@@ -59,7 +59,7 @@ export function NumberPicker({
         <button type="button" className="btn-ghost btn-sm" disabled={!value.length} onClick={() => onChange([])}>
           <X className="h-4 w-4" /> 지우기
         </button>
-        <span className={cn('num ml-auto text-sm', full ? 'text-gold' : 'text-fog-400')}>
+        <span className={cn('num ml-auto text-sm', full ? 'text-gold-deep' : 'text-fog-400')}>
           {value.length}/{max}
         </span>
       </div>
