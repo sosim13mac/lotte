@@ -8,9 +8,10 @@ export async function GET(request: Request) {
   const code = url.searchParams.get('code');
   const next = safeNextPath(url.searchParams.get('next'));
 
+  // 프록시(Vercel 등) 뒤에서는 원래 호스트/프로토콜로 돌려보내기
   const forwardedHost = request.headers.get('x-forwarded-host');
-  const base =
-    process.env.NODE_ENV !== 'development' && forwardedHost ? `https://${forwardedHost}` : url.origin;
+  const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  const base = forwardedHost ? `${forwardedProto || 'https'}://${forwardedHost}` : url.origin;
 
   if (code) {
     const supabase = createServerSupabase();
