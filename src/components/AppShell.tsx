@@ -4,10 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { BudgetWatcher } from '@/components/BudgetWatcher';
+import { GeofenceWatcher } from '@/components/GeofenceWatcher';
 import { Splash } from '@/components/Splash';
 import { Toaster } from '@/components/Toaster';
 import { IS_DEMO } from '@/lib/env';
 import { latestDrawnRound } from '@/lib/lotto/round';
+import { listenNativePushToken } from '@/lib/push';
 import { useAppStore } from '@/store/useAppStore';
 
 /** 로그인/온보딩 가드 + 데이터 부트스트랩 + 하단 탭 */
@@ -23,6 +25,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     void bootstrap();
   }, [bootstrap]);
+
+  // Flutter 앱이 보내는 FCM 토큰 자동 등록
+  useEffect(() => (status === 'ready' ? listenNativePushToken() : undefined), [status]);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/login');
@@ -62,6 +67,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <BottomNav badges={{ '/logs': sealed }} />
       <Toaster />
       <BudgetWatcher />
+      <GeofenceWatcher />
     </>
   );
 }

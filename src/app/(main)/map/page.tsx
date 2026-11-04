@@ -1,12 +1,8 @@
-import { MapPin } from 'lucide-react';
-import { ComingSoon } from '@/components/ComingSoon';
-import { PageHeader } from '@/components/PageHeader';
+import type { Metadata } from 'next';
+import { MapView } from './MapView';
+
+export const metadata: Metadata = { title: '명당 지도' };
 
 export default function MapPage() {
-  return (
-    <>
-      <PageHeader title="명당 지도" subtitle="주변 로또 판매점과 1등 배출점" />
-      <ComingSoon Icon={MapPin} title="지도 준비 중" description="카카오맵으로 주변 판매점과 명당을 보여주고, 지나갈 때 알려드릴게요." />
-    </>
-  );
+  return <MapView />;
 }

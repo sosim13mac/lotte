@@ -16,6 +16,9 @@ export type Database = {
           email: string | null;
           birth_date: string | null;
           monthly_budget: number | null;
+          notify_geofence: boolean;
+          notify_favorite_win: boolean;
+          notify_draw_result: boolean;
           created_at: string;
         };
         Insert: {
@@ -30,6 +33,9 @@ export type Database = {
           email?: string | null;
           birth_date?: string | null;
           monthly_budget?: number | null;
+          notify_geofence?: boolean;
+          notify_favorite_win?: boolean;
+          notify_draw_result?: boolean;
           created_at?: string;
         };
         Relationships: [];
@@ -83,6 +89,7 @@ export type Database = {
           store_codes: string[];
           second_store_codes: string[];
           prize_amounts: number[] | null;
+          notified_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -115,6 +122,8 @@ export type Database = {
           first_win_count: number;
           second_win_count: number;
           is_hot: boolean;
+          open_time: string | null;
+          close_time: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -139,6 +148,26 @@ export type Database = {
         };
         Relationships: [];
       };
+      favorite_stores: {
+        Row: { user_id: string; store_code: string; created_at: string };
+        Insert: { user_id?: string; store_code: string };
+        Update: { store_code?: string };
+        Relationships: [
+          {
+            foreignKeyName: 'favorite_stores_store_code_fkey';
+            columns: ['store_code'];
+            isOneToOne: false;
+            referencedRelation: 'stores';
+            referencedColumns: ['code'];
+          },
+        ];
+      };
+      push_tokens: {
+        Row: { token: string; user_id: string; platform: string; created_at: string; last_seen_at: string };
+        Insert: { token: string; user_id: string; platform: string };
+        Update: { platform?: string };
+        Relationships: [];
+      };
       dream_map: {
         Row: { keyword: string; numbers: number[] };
         Insert: { keyword: string; numbers: number[] };
@@ -152,6 +181,7 @@ export type Database = {
       compute_win_amount: { Args: { p_games: Json; p_round: number }; Returns: number };
       settle_round: { Args: { p_round: number }; Returns: number };
       refresh_store_stats: { Args: { p_codes?: string[] | null }; Returns: number };
+      register_push_token: { Args: { p_token: string; p_platform: string }; Returns: undefined };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

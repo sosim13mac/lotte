@@ -25,7 +25,17 @@ export interface NewTicket {
   qr_raw?: string | null;
 }
 
-export type ProfilePatch = Partial<Pick<Profile, 'birth_date' | 'monthly_budget'>>;
+export type ProfilePatch = Partial<
+  Pick<Profile, 'birth_date' | 'monthly_budget' | 'notify_geofence' | 'notify_favorite_win' | 'notify_draw_result'>
+>;
+
+export interface StoreQuery {
+  bounds?: { swLat: number; swLng: number; neLat: number; neLng: number };
+  hotOnly?: boolean;
+  limit?: number;
+}
+
+export type PushPlatform = 'web' | 'android' | 'ios';
 export type TicketPatch = Partial<
   Pick<Ticket, 'opened_at' | 'store_code' | 'store_name' | 'round' | 'games' | 'purchase_date'>
 >;
@@ -54,5 +64,12 @@ export interface Repo {
   getLedgerStats(): Promise<LedgerStats>;
   /** 판매점 코드 → 판매점 (명당 DB 에 없으면 null) */
   findStore(code: string): Promise<Store | null>;
+  /** 지도 범위 안 판매점 */
+  listStores(query?: StoreQuery): Promise<Store[]>;
+  listFavoriteStores(): Promise<Store[]>;
+  setFavoriteStore(code: string, on: boolean): Promise<void>;
+  /** FCM 토큰 등록 (같은 기기 토큰은 현재 계정으로 이동) */
+  registerPushToken(token: string, platform: PushPlatform): Promise<void>;
+  unregisterPushToken(token: string): Promise<void>;
   signOut(): Promise<void>;
 }

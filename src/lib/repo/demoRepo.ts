@@ -5,11 +5,12 @@ import { latestDrawnRound } from '@/lib/lotto/round';
 import { buildDemoDataset, DEMO_DREAMS, DEMO_STORES, DEMO_USER_ID, demoProfile, type DemoDataset } from './demoData';
 import { DuplicateTicketError, type Profile, type Repo, type Ticket } from './types';
 
-const STORAGE_KEY = 'zzolgit:demo:v2';
+const STORAGE_KEY = 'zzolgit:demo:v3';
 
 interface DemoState extends DemoDataset {
   profile: Profile;
   signedIn: boolean;
+  favorites: string[];
 }
 
 function readState(): DemoState {
@@ -23,7 +24,7 @@ function readState(): DemoState {
   } catch {
     // 저장소 접근 불가(프라이빗 모드 등) → 새로 생성
   }
-  const fresh: DemoState = { ...buildDemoDataset(), profile: demoProfile(), signedIn: true };
+  const fresh: DemoState = { ...buildDemoDataset(), profile: demoProfile(), signedIn: true, favorites: ['1100101'] };
   writeState(fresh);
   return fresh;
 }
@@ -140,6 +141,36 @@ export function createDemoRepo(): Repo {
 
     async findStore(code) {
       return DEMO_STORES.find((st) => st.code === code) ?? null;
+    },
+
+    async listStores(query = {}) {
+      return DEMO_STORES.filter((st) => {
+        if (query.hotOnly && !st.is_hot) return false;
+        const b = query.bounds;
+        if (b && st.lat !== null && st.lng !== null) {
+          return st.lat >= b.swLat && st.lat <= b.neLat && st.lng >= b.swLng && st.lng <= b.neLng;
+        }
+        return true;
+      });
+    },
+
+    async listFavoriteStores() {
+      const favs = get().favorites;
+      return favs.map((c) => DEMO_STORES.find((st) => st.code === c)).filter((st): st is (typeof DEMO_STORES)[number] => Boolean(st));
+    },
+
+    async setFavoriteStore(code, on) {
+      const s = get();
+      s.favorites = on ? [code, ...s.favorites.filter((c) => c !== code)] : s.favorites.filter((c) => c !== code);
+      commit();
+    },
+
+    async registerPushToken() {
+      // 데모: 저장하지 않음
+    },
+
+    async unregisterPushToken() {
+      // 데모: 저장하지 않음
     },
 
     async signOut() {

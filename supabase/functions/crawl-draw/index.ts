@@ -1,5 +1,6 @@
 /**
  * crawl-draw — 토요일 20:35 이후 당첨번호 크롤링 → winning_draws 저장 → tickets.win_amount 자동 정산
+ *              → 단골점 1·2등 / 내 회차 결과 FCM 푸시
  *
  * 호출: pg_cron (supabase/migrations/*_schedule_crawl.sql) 또는 수동
  *   POST /functions/v1/crawl-draw            최신 회차까지 자동
@@ -17,6 +18,7 @@ import {
   type TopStore,
 } from '../_shared/dhlottery.ts';
 import { geocodeAddress } from '../_shared/kakao.ts';
+import { notifyRound } from '../_shared/notify.ts';
 import { latestDrawnRound } from '../_shared/round.ts';
 
 const MAX_ROUNDS_PER_CALL = 30;
@@ -29,6 +31,7 @@ interface RoundOutcome {
   settledTickets?: number;
   stores?: number;
   skippedStoreIds?: string[];
+  push?: Awaited<ReturnType<typeof notifyRound>>;
   error?: string;
 }
 
@@ -146,7 +149,10 @@ async function crawlRound(sb: SupabaseClient, round: number): Promise<RoundOutco
   if (settleError) throw settleError;
   if (codes.length) await sb.rpc('refresh_store_stats', { p_codes: codes });
 
-  return { round, status: 'saved', settledTickets: settled ?? 0, stores: codes.length, skippedStoreIds: skipped };
+  // 최근 회차만 푸시 (과거 데이터 채우기 중에는 보내지 않음)
+  const push = round >= latestDrawnRound() - 1 ? await notifyRound(sb, round).catch((e) => ({ favoriteWins: 0, drawResults: 0, removedTokens: 0, skipped: String(e) })) : undefined;
+
+  return { round, status: 'saved', settledTickets: settled ?? 0, stores: codes.length, skippedStoreIds: skipped, push };
 }
 
 Deno.serve(async (req) => {

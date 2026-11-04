@@ -25,7 +25,7 @@ export const DEMO_STORES: Store[] = [
   ['1100108', '희망로또 동교점', '서울 마포구 동교로 194', 37.5583, 126.9234, 0, 0, false],
   ['1100109', '네잎클로버 복권 공덕점', '서울 마포구 마포대로 92', 37.5446, 126.9516, 5, 9, true],
   ['1100110', '무지개 슈퍼 이대점', '서울 서대문구 이화여대길 50', 37.5568, 126.9459, 0, 2, false],
-].map(([code, name, address, lat, lng, first, second, hot]) => ({
+].map(([code, name, address, lat, lng, first, second, hot], i) => ({
   code: code as string,
   name: name as string,
   address: address as string,
@@ -34,6 +34,9 @@ export const DEMO_STORES: Store[] = [
   first_win_count: first as number,
   second_win_count: second as number,
   is_hot: hot as boolean,
+  // 편의점 이름은 24시간, 나머지는 9~22시, 일부는 정보 없음
+  open_time: String(name).includes('편의점') ? '00:00:00' : i % 4 === 3 ? null : '09:00:00',
+  close_time: String(name).includes('편의점') ? '00:00:00' : i % 4 === 3 ? null : '22:00:00',
   created_at: '2026-01-01T00:00:00.000Z',
   updated_at: '2026-01-01T00:00:00.000Z',
 }));
@@ -46,6 +49,9 @@ export function demoProfile(): Profile {
     email: 'demo@zzolgit.app',
     birth_date: '1992-08-15',
     monthly_budget: 30_000,
+    notify_geofence: true,
+    notify_favorite_win: true,
+    notify_draw_result: true,
     created_at: nowIso(),
   };
 }
@@ -63,6 +69,7 @@ function makeDraw(rng: Rng, round: number): WinningDraw {
     bonus,
     store_codes: [firstStore],
     second_store_codes: [...new Set(secondStores)],
+    notified_at: null,
     prize_amounts: [
       1_500_000_000 + randInt(rng, 1_500_000) * 1000,
       45_000_000 + randInt(rng, 30_000) * 1000,

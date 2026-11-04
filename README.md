@@ -15,6 +15,9 @@
 | 인증 | Supabase Auth — **Google 로그인만** |
 | DB | Supabase Postgres (RLS) |
 | QR / OCR | 브라우저 `BarcodeDetector` → 미지원 시 `jsQR`, `Tesseract.js` (판매점 코드). 모두 기기 안에서 실행 |
+| 애니메이션 | Framer Motion (쫄깃 오픈 · 당첨번호 하이라이트) |
+| 지도 | Kakao Map JavaScript SDK (키가 없으면 내장 간이 지도) |
+| 푸시 | FCM (웹: Firebase JS SDK + 자체 서비스 워커 / 앱: 네이티브 토큰 브리지) + Supabase Edge Functions |
 
 ## 빠른 시작 (데모 모드)
 
@@ -190,6 +193,35 @@ curl -X POST "https://<project-ref>.supabase.co/functions/v1/crawl-draw" -H "Aut
 > `tests/dhlottery.test.ts` 의 예시 HTML/JSON 으로 테스트합니다. (개발 환경에서 동행복권 사이트에 직접 접속할 수 없어 실제 응답으로는 검증하지 못했습니다.)
 > 판매점 코드가 7자리가 아니면 `stores` 에는 넣지 않고, `winning_draws.store_codes` 에 원본 ID 만 남깁니다.
 
+## 주변 로또집 · 명당 · 지나가는 길 알림 (`/map`)
+
+`src/app/(main)/map/MapView.tsx` · `src/components/map/*` · `src/lib/geo.ts`
+
+- 카카오맵에 판매점 마커, **명당(`is_hot`)은 금색 왕관 핀**. 지도를 움직이면 보이는 범위의 판매점만 불러옵니다
+- 필터 **[전체] [명당만] [영업중]** — 영업중 = 로또 판매 시간(토 20:00~일 06:00, 매일 0~6시 판매 없음) 이면서 판매점 영업시간 안
+  (`stores.open_time/close_time`, 모르면 판매 시간만으로 판단)
+- 마커/목록을 누르면 1·2등 배출 횟수, 거리, 영업 상태, 길찾기(카카오맵 링크), **단골 등록(♥)**
+- `NEXT_PUBLIC_KAKAO_JS_KEY` 가 없거나 SDK 를 못 불러오면 ±1.5km 간이 지도로 대신 보여줍니다
+- **지나가는 길 알림**: 켜면 `navigator.geolocation.watchPosition` 으로 위치를 보고, 명당 **500m 안에 들어서는 순간** 로컬 알림
+  (같은 곳은 12시간에 한 번, 경계에서 반복 알림 방지). 브라우저는 백그라운드 위치를 못 쓰므로 앱이 열려 있는 동안만 동작합니다
+- **단골점 당첨 푸시**: 크롤러가 회차를 저장하면 단골점이 1·2등 배출점에 있는 사용자에게 FCM 푸시
+  — "내 단골 홍대GS25에서 2등 나왔어요!" (회차당 1번, `winning_draws.notified_at`)
+- **내 회차 결과 푸시**: 그 회차 티켓이 있는 사용자에게 "결과가 나왔어요, 쫄깃하게 열어볼까요?" (번호는 스포일러 없이 앱에서 공개)
+
+### FCM 설정
+
+1. Firebase 프로젝트 생성 → 웹 앱 추가 → 구성값을 `.env.local` 의 `NEXT_PUBLIC_FIREBASE_*` 에
+2. 클라우드 메시징 → 웹 푸시 인증서(VAPID 키) 생성 → `NEXT_PUBLIC_FIREBASE_VAPID_KEY`
+3. 서비스 계정 → 새 비공개 키(JSON) → Edge Function 시크릿 `FCM_SERVICE_ACCOUNT` (JSON 한 줄)
+
+```bash
+npx supabase secrets set FCM_SERVICE_ACCOUNT="$(cat service-account.json)" APP_URL=https://<배포 도메인>
+```
+
+- 웹 푸시는 `public/sw.js` 의 `push` 이벤트에서 직접 표시합니다 (Firebase SDK 를 서비스 워커에 넣지 않음). iPhone 은 홈 화면에 추가한 PWA 에서만 웹 푸시가 됩니다.
+- 토큰은 `register_push_token()` RPC 로 저장 — 같은 기기 토큰이 다른 계정에 묶여 있으면 현재 계정으로 옮기고, 만료된 토큰은 발송 시 자동 삭제합니다.
+- Edge Function 쪽 발송은 서비스 계정 JWT 를 WebCrypto 로 직접 서명해 FCM HTTP v1 을 호출합니다 (`supabase/functions/_shared/fcm.ts`).
+
 ## DB 스키마
 
 `supabase/migrations/20261104000100_init_schema.sql`
@@ -201,6 +233,8 @@ curl -X POST "https://<project-ref>.supabase.co/functions/v1/crawl-draw" -H "Aut
 | `winning_draws` | 회차별 당첨번호·보너스·1등 배출점 코드 |
 | `stores` | 판매점(명당) DB |
 | `dream_map` | 꿈 키워드 → 행운수 2개 (예: 돼지 → 12, 26) |
+| `favorite_stores` | 내 단골점 (추가) |
+| `push_tokens` | FCM 토큰 — 웹/안드로이드/iOS (추가) |
 
 요구 스키마에서 바꾸거나 더한 부분과 이유:
 
@@ -209,6 +243,7 @@ curl -X POST "https://<project-ref>.supabase.co/functions/v1/crawl-draw" -H "Aut
 - `tickets.opened_at` — 쫄깃 오픈 여부(기기 간 동기화).
 - `winning_draws.second_store_codes`, `winning_draws.prize_amounts` — 단골점 2등 알림과 당첨금 자동 계산용.
 - `tickets.amount` 는 비워서 넣으면 트리거가 `게임 수 x 1,000원` 으로 채웁니다.
+- `users` 에 월 예산·알림 설정, `stores` 에 영업시간, `tickets` 에 `settled_at`, `winning_draws` 에 `notified_at` 을 더했습니다.
 - 각 게임은 1~45 의 서로 다른 정수 6개, 티켓당 1~5게임만 허용(CHECK 제약).
 
 ### 보안 (RLS / 권한)
@@ -232,6 +267,8 @@ src/
     scan/                             사진 → QR / OCR 파이프라인 (브라우저 전용)
     repo/                             데이터 접근 계층 (Supabase 구현 / 데모 구현)
     supabase/                         브라우저 · 서버 · 미들웨어 클라이언트
+    geo.ts · push.ts · notify.ts      거리/영업중/지오펜스 · FCM 등록 · 로컬 알림
+    ledger.ts                         가계부 집계 (SQL get_ledger_stats 와 동일)
     nativeBridge.ts                   Flutter WebView 브리지
   store/useAppStore.ts                Zustand 스토어
   middleware.ts                       세션 갱신 + 비로그인 리다이렉트
@@ -239,7 +276,7 @@ supabase/
   config.toml                         Google 로그인만 활성화, Storage 비활성화
   migrations/                         스키마 · 정산/가계부 함수 · pg_cron 스케줄
   functions/crawl-draw/               토요일 당첨번호 크롤러 (Deno)
-  functions/_shared/                  동행복권 파서 · 카카오 지오코딩 · 회차 계산
+  functions/_shared/                  동행복권 파서 · 카카오 지오코딩 · FCM 발송 · 회차 계산
   seed.sql                            로컬 전용 샘플 판매점
 public/
   manifest.json, sw.js, icons/        PWA
@@ -251,6 +288,10 @@ public/
   네이티브 Google 로그인 후 `google-id-token` 이벤트로 ID 토큰을 돌려주면, 웹이 `signInWithIdToken` 으로 세션을 만듭니다
   (`src/lib/nativeBridge.ts`).
 - 웹은 `env(safe-area-inset-*)` 를 사용하므로 WebView 를 edge-to-edge 로 띄워도 됩니다.
+- 푸시: WebView 에서는 웹 푸시가 안 되므로 앱이 네이티브 FCM 토큰을 `push-token` 메시지로 보내면 웹이 `register_push_token` 으로 저장합니다
+  (서버 발송 코드는 그대로). 알림 데이터의 `url` 로 해당 화면을 열면 됩니다.
+- 지오펜싱: 브라우저 `watchPosition` 은 포그라운드 전용이라, 앱에서는 네이티브 지오펜스(명당 좌표는 `stores` 에서 조회)로 바꾸면 백그라운드 알림이 가능합니다.
+- 카메라: `<input capture>` 를 쓰므로 WebView 에서 파일 선택/카메라 권한만 연결하면 됩니다. QR 은 BarcodeDetector 가 없어도 jsQR 로 동작합니다.
 
 ## 스크립트
 
@@ -263,8 +304,21 @@ public/
 | `node scripts/copy-tesseract-assets.mjs` | OCR 엔진 자산을 `public/tesseract` 로 복사 (postinstall 에서 자동 실행) |
 | `node scripts/render-icons.mjs` | `public/icon.svg` → PWA PNG 아이콘 재생성 (Playwright) |
 
+## 환경 변수 요약
+
+| 위치 | 변수 | 용도 |
+| --- | --- | --- |
+| `.env.local` (Next) | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase (없으면 데모 모드) |
+| | `NEXT_PUBLIC_KAKAO_JS_KEY` | 카카오맵 |
+| | `NEXT_PUBLIC_FIREBASE_*` | FCM 웹 푸시 |
+| `.env` (Supabase CLI) | `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID/SECRET` | Google 로그인 |
+| Edge Function 시크릿 | `CRON_SECRET`, `KAKAO_REST_API_KEY`, `FCM_SERVICE_ACCOUNT`, `APP_URL` | 크롤러 인증 · 지오코딩 · 푸시 (`supabase/functions/.env.example`) |
+| Supabase Vault | `project_url`, `crawl_cron_secret` | pg_cron 이 크롤러 호출 |
+
 ## 알려진 사항
 
 - **Next.js 14 는 지원이 끝난 버전**이며, 14.2.35 에는 15.x/16.x 에서만 고쳐진 보안 권고가 남아 있습니다.
   요구 스택(Next 14)을 지키되 노출면을 줄이기 위해 이미지 최적화 API 를 끄고(`images.unoptimized`), Server Actions·rewrites 를 쓰지 않습니다.
   운영 배포 전 Next 16 업그레이드를 권장합니다 (데이터 접근이 클라이언트 + Supabase 중심이라 이전 부담이 작습니다).
+- 동행복권·카카오 API 는 개발 환경 네트워크 정책상 직접 호출해 보지 못했습니다. 파서·요청 형식은 테스트용 예시 데이터로만 검증되어 있으니 첫 배포 후 `crawl-draw` 를 한 회차로 실행해 확인해 주세요.
+- 판매점 코드는 요구사항대로 숫자 7자리로 가정했습니다 (`STORE_CODE_LENGTH`, `normalizeStoreCode`).
