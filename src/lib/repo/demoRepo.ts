@@ -1,9 +1,12 @@
 import { computeLedgerStats } from '@/lib/ledger';
+import { gameStats } from '@/lib/lotto/analysis';
 import { GAME_PRICE } from '@/lib/lotto/constants';
+import { summarizeDrawStats } from '@/lib/lotto/drawStats';
 import { ticketResult } from '@/lib/lotto/prize';
 import { latestDrawnRound } from '@/lib/lotto/round';
 import { buildDemoDataset, DEMO_DREAMS, DEMO_STORES, DEMO_USER_ID, demoProfile, type DemoDataset } from './demoData';
-import { DuplicateTicketError, type Profile, type Repo, type Ticket } from './types';
+import { APP_NAME, validateInquiry } from '@/lib/inquiry';
+import { DuplicateTicketError, type Inquiry, type Profile, type Repo, type Ticket } from './types';
 
 const STORAGE_KEY = 'zzolgit:demo:v3';
 
@@ -11,6 +14,8 @@ interface DemoState extends DemoDataset {
   profile: Profile;
   signedIn: boolean;
   favorites: string[];
+  /** 데모 문의 (이전 버전 저장 데이터에는 없을 수 있음) */
+  inquiries?: Inquiry[];
 }
 
 function readState(): DemoState {
@@ -128,6 +133,53 @@ export function createDemoRepo(): Repo {
       const sorted = [...get().draws].sort((a, b) => b.round - a.round);
       if (opts.rounds?.length) return sorted.filter((d) => opts.rounds!.includes(d.round));
       return sorted.slice(0, opts.limit ?? 20);
+    },
+
+    async listInquiries() {
+      const items = [...(get().inquiries ?? [])].sort((a, b) => b.created_at.localeCompare(a.created_at));
+      return { items, isAdmin: false };
+    },
+
+    async createInquiry(input) {
+      const v = validateInquiry(input);
+      if (!v.ok) throw new Error(v.error);
+      const row: Inquiry = {
+        id: `demo-inq-${Date.now()}`,
+        app_name: APP_NAME,
+        ...v.value,
+        status: 'open',
+        reply: null,
+        replied_at: null,
+        created_at: new Date().toISOString(),
+      };
+      const s = get();
+      s.inquiries = [row, ...(s.inquiries ?? [])];
+      commit();
+      return row;
+    },
+
+    async deleteInquiry(id) {
+      const s = get();
+      s.inquiries = (s.inquiries ?? []).filter((i) => i.id !== id);
+      commit();
+    },
+
+    async replyInquiry() {
+      throw new Error('데모 모드에서는 답변할 수 없어요');
+    },
+
+    async getDrawStats() {
+      return summarizeDrawStats(
+        get().draws.map((d) => {
+          const g = gameStats(d.numbers);
+          return { odd: g.odd, low: g.low, sum: g.sum, avg: Math.round((g.sum / 6) * 10) / 10 };
+        }),
+      );
+    },
+
+    async getDrawCoverage() {
+      const rounds = get().draws.map((d) => d.round);
+      return { count: rounds.length, from: rounds.length ? Math.min(...rounds) : null, to: rounds.length ? Math.max(...rounds) : null };
     },
 
     async listDreamMap() {

@@ -4,6 +4,7 @@
  */
 import { DREAM_SEED } from '@/lib/lotto/dreamSeed';
 import { GAME_PRICE } from '@/lib/lotto/constants';
+import { gameStats } from '@/lib/lotto/analysis';
 import { ticketResult } from '@/lib/lotto/prize';
 import { drawDate, drawTime, latestDrawnRound } from '@/lib/lotto/round';
 import { pickNumbers, randInt, seededRng, type Rng } from '@/lib/random';
@@ -62,11 +63,18 @@ function makeDraw(rng: Rng, round: number): WinningDraw {
   while (numbers.includes(bonus)) bonus = randInt(rng, 45) + 1;
   const firstStore = DEMO_STORES[randInt(rng, DEMO_STORES.length)].code;
   const secondStores = [0, 1, 2].map(() => DEMO_STORES[randInt(rng, DEMO_STORES.length)].code);
+  const st = gameStats(numbers);
   return {
     round,
     draw_date: drawDate(round),
     numbers,
     bonus,
+    odd_count: st.odd,
+    even_count: st.even,
+    low_count: st.low,
+    high_count: st.high,
+    sum_numbers: st.sum,
+    avg_number: Math.round((st.sum / 6) * 10) / 10,
     store_codes: [firstStore],
     second_store_codes: [...new Set(secondStores)],
     notified_at: null,

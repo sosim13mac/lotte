@@ -1,6 +1,7 @@
 'use client';
 
 import { Camera, ChartColumn, MapPin, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Disclaimer } from '@/components/Disclaimer';
@@ -174,7 +175,12 @@ export function LoginView({ next, hasError }: { next: string; hasError: boolean 
             )}
           </>
         )}
-        <p className="text-center text-[11px] text-fog-500">만 19세 이상만 이용할 수 있어요</p>
+        <p className="text-center text-[11px] text-fog-500">
+          만 19세 이상만 이용할 수 있어요 ·{' '}
+          <Link href="/privacy" className="underline">
+            개인정보 처리방침
+          </Link>
+        </p>
         <Disclaimer />
       </div>
     </main>

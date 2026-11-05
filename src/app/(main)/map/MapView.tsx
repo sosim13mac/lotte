@@ -10,7 +10,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { cn } from '@/lib/cn';
 import { boundsAround, distanceMeters, formatDistance, type Bounds, type LatLng } from '@/lib/geo';
 import { KAKAO_JS_KEY } from '@/lib/kakaoMap';
-import { getRepo, type Store } from '@/lib/repo';
+import { getRepo, type DrawCoverage, type Store } from '@/lib/repo';
 import { useAppStore } from '@/store/useAppStore';
 
 type Filter = 'all' | 'hot' | 'open';
@@ -34,7 +34,15 @@ export function MapView() {
   const [selected, setSelected] = useState<Store | null>(null);
   const [mode, setMode] = useState<'kakao' | 'radar'>(KAKAO_JS_KEY ? 'kakao' : 'radar');
   const [loading, setLoading] = useState(false);
+  const [coverage, setCoverage] = useState<DrawCoverage | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    getRepo()
+      .getDrawCoverage()
+      .then(setCoverage)
+      .catch(() => {});
+  }, []);
 
   const load = useCallback((bounds: Bounds) => {
     if (timer.current) clearTimeout(timer.current);
@@ -165,7 +173,7 @@ export function MapView() {
 
       {selected && (
         <div className="mt-3">
-          <StoreCard store={selected} from={me} onClose={() => setSelected(null)} />
+          <StoreCard store={selected} from={me} coverage={coverage} onClose={() => setSelected(null)} />
         </div>
       )}
       </div>
@@ -218,6 +226,12 @@ export function MapView() {
       </section>
       <p className="mt-3 text-center text-[11px] text-fog-500 lg:col-span-2">
         판매점·배출 기록은 매주 추첨 후 동행복권 1·2등 배출점 정보로 갱신돼요. 명당 = 1등 2회↑ 또는 2등 5회↑
+        {coverage && coverage.count > 0 && (
+          <>
+            <br />
+            1·2등 횟수는 저장된 {coverage.count}개 회차({coverage.from}~{coverage.to}회) 안에서만 센 값이며 역대 전체 기록이 아니에요
+          </>
+        )}
       </p>
       </div>
     </>

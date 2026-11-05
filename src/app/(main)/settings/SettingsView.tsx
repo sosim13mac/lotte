@@ -1,6 +1,6 @@
 'use client';
 
-import { Cake, Crown, LogOut, MapPin, RotateCcw } from 'lucide-react';
+import { Cake, ChevronRight, Crown, LogOut, MapPin, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -166,6 +166,17 @@ export function SettingsView() {
         </Link>
       </section>
 
+      <section className="card mt-4 divide-y divide-ink-600 py-1">
+        <Link href="/support" className="flex items-center justify-between py-3 text-sm">
+          문의 / 건의
+          <ChevronRight className="h-4 w-4 text-fog-400" />
+        </Link>
+        <Link href="/privacy" className="flex items-center justify-between py-3 text-sm">
+          개인정보 처리방침
+          <ChevronRight className="h-4 w-4 text-fog-400" />
+        </Link>
+      </section>
+
       <section className="mt-4 space-y-2">
         {IS_DEMO && (
           <button
@@ -179,7 +190,7 @@ export function SettingsView() {
           </button>
         )}
         <button className="btn-ghost w-full text-gain" onClick={logout}>
-          <LogOut className="h-4 w-4" /> {IS_DEMO ? '데모 종료' : '구글 로그아웃'}
+          <LogOut className="h-4 w-4" /> {IS_DEMO ? '데모 종료' : '로그아웃'}
         </button>
       </section>
 

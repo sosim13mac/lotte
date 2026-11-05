@@ -6,12 +6,24 @@ export const CROWN_PIN = `<svg width="38" height="46" viewBox="0 0 38 46" aria-h
 /** 일반 판매점 핀 */
 export const STORE_PIN = `<svg width="26" height="32" viewBox="0 0 26 32" aria-hidden="true"><path d="M13 31c-1-3.2-10-11-10-18a10 10 0 0 1 20 0c0 7-9 14.8-10 18z" fill="#3987e5" stroke="#0B0D1F" stroke-width="2"/><circle cx="13" cy="13" r="4" fill="#fff"/></svg>`;
 
+/** 핀 + 이름표. 이름은 외부 데이터이므로 innerHTML 이 아닌 textContent 로만 넣습니다. */
 export function markerElement(store: Store, selected: boolean, onClick: () => void): HTMLElement {
   const el = document.createElement('button');
   el.type = 'button';
   el.className = `zz-marker${selected ? ' zz-selected' : ''}`;
   el.setAttribute('aria-label', `${store.name}${store.is_hot ? ' (명당)' : ''}`);
-  el.innerHTML = store.is_hot ? CROWN_PIN : STORE_PIN;
+
+  const wrap = document.createElement('span');
+  wrap.className = 'zz-pinwrap';
+  const pin = document.createElement('span');
+  pin.className = 'zz-pin';
+  pin.innerHTML = store.is_hot ? CROWN_PIN : STORE_PIN;
+  const label = document.createElement('span');
+  label.className = `zz-label${store.is_hot ? ' zz-label-hot' : ''}`;
+  label.textContent = store.name;
+  wrap.append(pin, label);
+  el.append(wrap);
+
   el.addEventListener('click', (e) => {
     e.stopPropagation();
     onClick();

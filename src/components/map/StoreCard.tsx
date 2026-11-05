@@ -3,7 +3,7 @@
 import { Crown, Heart, Navigation, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { distanceMeters, formatDistance, storeOpenState, type LatLng } from '@/lib/geo';
-import type { Store } from '@/lib/repo';
+import type { DrawCoverage, Store } from '@/lib/repo';
 import { useAppStore } from '@/store/useAppStore';
 
 const OPEN_LABEL = { open: '영업중', closed: '영업 종료', unknown: '판매중 · 시간 미확인' } as const;
@@ -40,7 +40,17 @@ export function FavoriteButton({ store, className }: { store: Store; className?:
 }
 
 /** 선택한 판매점 상세 */
-export function StoreCard({ store, from, onClose }: { store: Store; from: LatLng | null; onClose: () => void }) {
+export function StoreCard({
+  store,
+  from,
+  coverage,
+  onClose,
+}: {
+  store: Store;
+  from: LatLng | null;
+  coverage?: DrawCoverage | null;
+  onClose: () => void;
+}) {
   const open = openLabel(store);
   const dist = from && store.lat !== null && store.lng !== null ? distanceMeters(from, { lat: store.lat, lng: store.lng }) : null;
   const route =
@@ -82,6 +92,11 @@ export function StoreCard({ store, from, onClose }: { store: Store; from: LatLng
           <dd className="text-base font-bold">{dist === null ? '-' : formatDistance(dist)}</dd>
         </div>
       </dl>
+      {coverage && coverage.count > 0 && (
+        <p className="mt-2 text-[11px] text-fog-500">
+          ※ 저장된 {coverage.count}개 회차({coverage.from}~{coverage.to}회) 기준이며, 역대 전체 기록이 아니에요
+        </p>
+      )}
       <p className={cn('mt-3 text-xs', open.state === 'closed' ? 'text-fog-500' : 'text-fog-300')}>{open.text}</p>
       <div className="mt-3 flex gap-2">
         <a href={route} target="_blank" rel="noopener noreferrer" className="btn-ghost flex-1">

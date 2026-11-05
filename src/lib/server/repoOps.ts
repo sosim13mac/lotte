@@ -1,6 +1,8 @@
 import 'server-only';
 import type { QueryResultRow } from 'pg';
 import { GAME_PRICE } from '@/lib/lotto/constants';
+import { APP_NAME, INQUIRY_HOURLY_LIMIT, isAdminEmail, validateInquiry, validateReply } from '@/lib/inquiry';
+import { summarizeDrawStats } from '@/lib/lotto/drawStats';
 import { getPool } from './db';
 import type { SessionUser } from './session';
 
@@ -90,6 +92,70 @@ export const ops: Record<string, (user: SessionUser, a: Args) => Promise<unknown
     const rounds = a.rounds as number[] | undefined;
     if (rounds?.length) return q('select * from public.winning_draws where round = any($1::int[]) order by round desc', [rounds]);
     return q('select * from public.winning_draws order by round desc limit $1', [Math.min(Number(a.limit ?? 20), 200)]);
+  },
+
+  async listInquiries(user, a) {
+    const isAdmin = isAdminEmail(user.email, process.env.ADMIN_EMAILS);
+    if (a.all && !isAdmin) throw new HttpError(403, '권한이 없어요');
+    const items = a.all
+      ? await q(
+          `select i.*, u.email as author_email from public.inquiries i left join public.users u on u.id = i.user_id
+           where i.app_name = $1 order by (i.status = 'open') desc, i.created_at desc limit 200`,
+          [APP_NAME],
+        )
+      : await q('select * from public.inquiries where user_id = $1 and app_name = $2 order by created_at desc limit 100', [user.id, APP_NAME]);
+    return { items, isAdmin };
+  },
+
+  async createInquiry(user, a) {
+    const v = validateInquiry((a.input ?? {}) as Args);
+    if (!v.ok) throw new HttpError(400, v.error);
+    await ensureUser(user);
+    const recent = await q<{ n: number }>(
+      "select count(*)::int as n from public.inquiries where user_id = $1 and app_name = $2 and created_at > now() - interval '1 hour'",
+      [user.id, APP_NAME],
+    );
+    if (recent[0].n >= INQUIRY_HOURLY_LIMIT) throw new HttpError(429, '잠시 후 다시 작성해 주세요 (1시간에 5건까지)');
+    const { category, title, body } = v.value;
+    return (
+      await q('insert into public.inquiries (app_name, user_id, category, title, body) values ($1, $2, $3, $4, $5) returning *', [
+        APP_NAME,
+        user.id,
+        category,
+        title,
+        body,
+      ])
+    )[0];
+  },
+
+  async deleteInquiry(user, a) {
+    await q('delete from public.inquiries where id = $1 and user_id = $2 and app_name = $3', [str(a.id, 'id'), user.id, APP_NAME]);
+    return null;
+  },
+
+  async replyInquiry(user, a) {
+    if (!isAdminEmail(user.email, process.env.ADMIN_EMAILS)) throw new HttpError(403, '권한이 없어요');
+    const v = validateReply(a.reply);
+    if (!v.ok) throw new HttpError(400, v.error);
+    const rows = await q(
+      `update public.inquiries set reply = $2, status = 'answered', replied_at = now() where id = $1 and app_name = $3 returning *`,
+      [str(a.id, 'id'), v.value, APP_NAME],
+    );
+    if (!rows.length) throw new HttpError(404, '문의를 찾을 수 없어요');
+    return rows[0];
+  },
+
+  async getDrawStats() {
+    // winning_draws 에 회차마다 기록된 분석 컬럼을 분포로 집계
+    const rows = await q<{ odd: number; low: number; sum: number; avg: number }>(
+      'select odd_count as odd, low_count as low, sum_numbers as sum, avg_number as avg from public.winning_draws',
+    );
+    return summarizeDrawStats(rows);
+  },
+
+  async getDrawCoverage() {
+    const r = (await q('select count(*)::int as count, min(round) as "from", max(round) as "to" from public.winning_draws'))[0];
+    return r;
   },
 
   async listDreamMap() {

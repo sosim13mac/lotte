@@ -88,6 +88,15 @@ export type Database = {
           store_codes: string[];
           second_store_codes: string[];
           prize_amounts: number[] | null;
+          /** 본번호 6개 분석 기록 (DB 트리거가 numbers 로부터 계산) */
+          odd_count: number;
+          even_count: number;
+          /** 저구간 1~22 */
+          low_count: number;
+          /** 고구간 23~45 */
+          high_count: number;
+          sum_numbers: number;
+          avg_number: number;
           notified_at: string | null;
           created_at: string;
           updated_at: string;

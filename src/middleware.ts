@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { IS_DEMO } from '@/lib/env';
 
 /** 로그인 없이 접근 가능한 경로 */
-const PUBLIC_PREFIXES = ['/login', '/auth', '/api/auth', '/api/cron', '/offline'];
+const PUBLIC_PREFIXES = ['/login', '/auth', '/api/auth', '/api/cron', '/offline', '/privacy'];
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));

@@ -1,7 +1,7 @@
 import { authClient } from '@/lib/authClient';
 import type { LedgerStats } from '@/lib/ledger';
 import { normalizeGames } from './normalize';
-import { DuplicateTicketError, type DreamEntry, type Profile, type Repo, type Store, type Ticket, type WinningDraw } from './types';
+import { DuplicateTicketError, type DrawCoverage, type DrawStatsSummary, type DreamEntry, type Inquiry, type InquiryList, type Profile, type Repo, type Store, type Ticket, type WinningDraw } from './types';
 
 class ApiError extends Error {
   constructor(
@@ -60,6 +60,14 @@ export function createNeonRepo(): Repo {
     },
     listDraws: (opts = {}) => call<WinningDraw[]>('listDraws', { ...opts }),
     listDreamMap: () => call<DreamEntry[]>('listDreamMap'),
+    getDrawCoverage: () => call<DrawCoverage>('getDrawCoverage'),
+    listInquiries: (opts = {}) => call<InquiryList>('listInquiries', { all: Boolean(opts.all) }),
+    createInquiry: (input) => call<Inquiry>('createInquiry', { input }),
+    async deleteInquiry(id) {
+      await call('deleteInquiry', { id });
+    },
+    replyInquiry: (id, reply) => call<Inquiry>('replyInquiry', { id, reply }),
+    getDrawStats: () => call<DrawStatsSummary | null>('getDrawStats'),
     getLedgerStats: () => call<LedgerStats>('getLedgerStats'),
     findStore: (code) => call<Store | null>('findStore', { code }),
     listStores: (query = {}) => call<Store[]>('listStores', { query }),

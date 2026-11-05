@@ -94,6 +94,35 @@ body {
 .zz-marker.zz-selected {
   transform: scale(1.25);
 }
+.zz-pinwrap {
+  position: relative;
+  display: block;
+}
+.zz-pin {
+  display: block;
+  line-height: 0;
+}
+/* 핀 바로 아래 이름표 (핀 위치 기준점은 그대로 유지) */
+.zz-label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 9.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #fff;
+  /* 지도 배경 위에서도 읽히도록 어두운 외곽선 */
+  text-shadow: -1px -1px 0 #0b0d1f, 1px -1px 0 #0b0d1f, -1px 1px 0 #0b0d1f, 1px 1px 0 #0b0d1f, 0 0 4px rgba(11, 13, 31, 0.8);
+}
+.zz-label-hot {
+  color: #ffc94a;
+}
 .zz-me {
   display: block;
   width: 16px;

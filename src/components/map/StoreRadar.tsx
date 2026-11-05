@@ -54,8 +54,12 @@ export function StoreRadar({
             style={{ left: `${((x + RANGE) / (RANGE * 2)) * 100}%`, top: `${((y + RANGE) / (RANGE * 2)) * 100}%`, zIndex: s.code === selectedCode ? 10 : s.is_hot ? 3 : 2 }}
             aria-label={`${s.name}${s.is_hot ? ' (명당)' : ''}`}
             onClick={() => onSelect(s)}
-            dangerouslySetInnerHTML={{ __html: s.is_hot ? CROWN_PIN : STORE_PIN }}
-          />
+          >
+            <span className="zz-pinwrap">
+              <span className="zz-pin" dangerouslySetInnerHTML={{ __html: s.is_hot ? CROWN_PIN : STORE_PIN }} />
+              <span className={`zz-label${s.is_hot ? ' zz-label-hot' : ''}`}>{s.name}</span>
+            </span>
+          </button>
         );
       })}
       <p className="absolute bottom-2 left-3 text-[10px] text-fog-500">간이 지도 · 카카오맵 키를 설정하면 실제 지도가 보여요</p>
