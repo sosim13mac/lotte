@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <>
       {IS_DEMO && (
         <div className="pt-safe bg-chewy/15 text-center lg:ml-56 text-[11px] font-medium text-chewy-deep">
-          <div className="py-1.5">데모 모드 · 샘플 데이터로 동작 중 (Supabase 미설정)</div>
+          <div className="py-1.5">데모 모드 · 샘플 데이터로 동작 중 (백엔드 미설정)</div>
         </div>
       )}
       <main className="mx-auto min-h-dvh max-w-[480px] overflow-x-clip px-4 pb-[calc(96px+env(safe-area-inset-bottom))] md:max-w-3xl md:px-6 lg:ml-56 lg:max-w-none lg:px-10 lg:pb-12">

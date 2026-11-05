@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { DREAM_SEED } from '@/lib/lotto/dreamSeed';
 
-const sql = readFileSync('supabase/migrations/20261104000100_init_schema.sql', 'utf8');
+const sql = readFileSync('db/neon/schema.sql', 'utf8');
 
 describe('dream_map 시드', () => {
   it('키워드가 겹치지 않고 번호는 1~45 서로 다른 2개', () => {

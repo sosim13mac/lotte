@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { base64url, buildFcmMessage, createSignedJwt, readServiceAccount } from '../supabase/functions/_shared/fcm';
+import { base64url, buildFcmMessage, createSignedJwt, readServiceAccount } from '@/lib/crawler/fcm';
 
 async function makeServiceAccount() {
   const { privateKey, publicKey } = await crypto.subtle.generateKey(

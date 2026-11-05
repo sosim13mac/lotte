@@ -3,7 +3,7 @@
  *
  * 전통 해몽에서 흔히 쓰이는 키워드에 재미용 번호를 붙인 표입니다. 통계적 근거는 없으며
  * 당첨과 무관합니다. 이 목록이 dream_map 테이블의 원본이며,
- * supabase/migrations/20261104000100_init_schema.sql 의 INSERT 와 같아야 합니다
+ * db/neon/schema.sql 의 INSERT 와 같아야 합니다
  * (tests/dreamSeed.test.ts 가 둘이 일치하는지 검사합니다).
  */
 export const DREAM_SEED: ReadonlyArray<readonly [keyword: string, a: number, b: number]> = [

@@ -11,11 +11,6 @@ next-env.d.ts
 .env
 .env*.local
 
-# supabase local
-supabase/.branches
-supabase/.temp
-supabase/.env
-supabase/functions/.env
 
 # tesseract assets copied at install time (scripts/copy-tesseract-assets.mjs)
 public/tesseract/
@@ -25,3 +20,4 @@ public/tesseract/
 npm-debug.log*
 coverage/
 test-results/
+.next-*/

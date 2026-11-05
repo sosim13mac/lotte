@@ -1,31 +1,22 @@
 import { NextResponse } from 'next/server';
 import { safeNextPath } from '@/lib/safeNext';
-import { createServerSupabase } from '@/lib/supabase/server';
+import { getPool } from '@/lib/server/db';
+import { getSessionUser } from '@/lib/server/session';
 
-/** Google OAuth 콜백: code → 세션 교환 후 생년월일이 없으면 온보딩으로 */
+export const dynamic = 'force-dynamic';
+
+/** 로그인 직후 도착 지점: 생년월일이 없으면 온보딩으로 */
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const code = url.searchParams.get('code');
   const next = safeNextPath(url.searchParams.get('next'));
-
-  // 프록시(Vercel 등) 뒤에서는 원래 호스트/프로토콜로 돌려보내기
   const forwardedHost = request.headers.get('x-forwarded-host');
   const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
   const base = forwardedHost ? `${forwardedProto || 'https'}://${forwardedHost}` : url.origin;
 
-  if (code) {
-    const supabase = createServerSupabase();
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error && data.user) {
-      const { data: profile } = await supabase
-        .from('users')
-        .select('birth_date')
-        .eq('id', data.user.id)
-        .maybeSingle();
-      const dest = profile?.birth_date ? next : `/onboarding?next=${encodeURIComponent(next)}`;
-      return NextResponse.redirect(`${base}${dest}`);
-    }
-  }
+  const user = await getSessionUser();
+  if (!user) return NextResponse.redirect(`${base}/login?error=auth`);
 
-  return NextResponse.redirect(`${base}/login?error=auth`);
+  const { rows } = await getPool().query('select birth_date from public.users where id = $1', [user.id]);
+  const dest = rows[0]?.birth_date ? next : `/onboarding?next=${encodeURIComponent(next)}`;
+  return NextResponse.redirect(`${base}${dest}`);
 }

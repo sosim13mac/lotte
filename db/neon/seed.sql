@@ -1,5 +1,5 @@
--- 로컬 개발용 시드 (supabase db reset 시에만 실행, 운영 DB 에는 적용되지 않음)
--- 판매점은 가상의 데이터입니다. 실제 데이터는 crawl-draw Edge Function 이 채웁니다.
+-- 로컬 개발용 시드 (수동 실행용: 샘플 판매점이라 운영 DB 에는 넣지 마세요)
+-- 판매점은 가상의 데이터입니다. 실제 데이터는 /api/cron/crawl-draw 가 채웁니다.
 insert into public.stores (code, name, address, lat, lng, first_win_count, second_win_count, is_hot) values
   ('1100101', '행운편의점 홍대점',       '서울 마포구 와우산로 94',      37.5546, 126.9229, 4, 11, true),
   ('1100102', '대박복권방 합정점',       '서울 마포구 양화로 45',        37.5496, 126.9139, 2,  7, true),

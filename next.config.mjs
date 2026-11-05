@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // 개발 서버를 여러 개 띄울 때 .next 캐시가 충돌하지 않게 NEXT_DIST_DIR 로 분리할 수 있습니다
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   poweredByHeader: false,
   // 이미지 최적화 API는 사용하지 않습니다 (사진 원본은 서버로 보내지 않고, Next 14 Image Optimizer 취약점 노출면도 제거).
   images: { unoptimized: true },

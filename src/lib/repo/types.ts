@@ -47,9 +47,9 @@ export class DuplicateTicketError extends Error {
   }
 }
 
-/** 데이터 접근 계층. Supabase 구현과 데모(localStorage) 구현이 같은 인터페이스를 가집니다. */
+/** 데이터 접근 계층. Neon 구현과 데모(localStorage) 구현이 같은 인터페이스를 가집니다. */
 export interface Repo {
-  readonly kind: 'supabase' | 'demo';
+  readonly kind: 'neon' | 'demo';
   /** 로그인하지 않았으면 null */
   getProfile(): Promise<Profile | null>;
   updateProfile(patch: ProfilePatch): Promise<Profile>;
@@ -60,7 +60,7 @@ export interface Repo {
   /** rounds 를 주면 해당 회차만, 아니면 최신순 limit 개 */
   listDraws(opts?: { rounds?: number[]; limit?: number }): Promise<WinningDraw[]>;
   listDreamMap(): Promise<DreamEntry[]>;
-  /** 가계부 집계 (Supabase: get_ledger_stats RPC / 데모: 같은 규칙의 TS 계산) */
+  /** 가계부 집계 (Neon: get_ledger_stats 함수 / 데모: 같은 규칙의 TS 계산) */
   getLedgerStats(): Promise<LedgerStats>;
   /** 판매점 코드 → 판매점 (명당 DB 에 없으면 null) */
   findStore(code: string): Promise<Store | null>;

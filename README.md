@@ -12,16 +12,16 @@
 | --- | --- |
 | Frontend | Next.js 14 (App Router), TypeScript, Tailwind CSS, PWA (`public/manifest.json`, `public/sw.js`) |
 | 상태관리 | Zustand |
-| 인증 | Supabase Auth — **Google 로그인만** |
-| DB | Supabase Postgres (RLS) |
+| 인증 | Better Auth — 이메일/비밀번호 + (선택) Google 로그인 |
+| DB | Neon Postgres (`pg`, 서버 API 라우트에서 본인 데이터만 접근) |
 | QR / OCR | 브라우저 `BarcodeDetector` → 미지원 시 `jsQR`, `Tesseract.js` (판매점 코드). 모두 기기 안에서 실행 |
 | 애니메이션 | Framer Motion (쫄깃 오픈 · 당첨번호 하이라이트) |
 | 지도 | Kakao Map JavaScript SDK (키가 없으면 내장 간이 지도) |
-| 푸시 | FCM (웹: Firebase JS SDK + 자체 서비스 워커 / 앱: 네이티브 토큰 브리지) + Supabase Edge Functions |
+| 푸시 | FCM (웹: Firebase JS SDK + 자체 서비스 워커 / 앱: 네이티브 토큰 브리지) + Next.js Cron 라우트(크롤러) |
 
 ## 빠른 시작 (데모 모드)
 
-Supabase 설정 없이도 바로 실행됩니다. `.env.local` 이 없으면 **데모 모드**로 동작하며,
+DB 설정 없이도 바로 실행됩니다. `.env.local` 이 없으면 **데모 모드**로 동작하며,
 로그인 없이 브라우저 localStorage 에 저장되는 샘플 데이터(가상의 당첨번호·판매점)를 사용합니다.
 
 ```bash
@@ -34,54 +34,36 @@ npm run dev
 
 http://localhost:3000 → "데모로 둘러보기"
 
-## Supabase 연결
+## Neon 연결
 
-### 1) 로컬 개발 (Supabase CLI + Docker)
+1. [Neon](https://neon.tech) 에서 프로젝트를 만들고(리전은 한국에서 가까운 싱가포르 권장) **Connect** 에서 연결 문자열(Pooled)을 복사합니다.
+2. `.env.example` 을 `.env.local` 로 복사해 채웁니다.
 
-```bash
-cp .env.example .env
+```
+NEXT_PUBLIC_BACKEND=neon
+DATABASE_URL=postgresql://...        # 서버 전용 — 절대 커밋 금지
+BETTER_AUTH_SECRET=<긴 임의 문자열>    # node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+BETTER_AUTH_URL=http://localhost:3000
 ```
 
-`.env` 에 Google OAuth 클라이언트 ID/secret 을 넣습니다 (`supabase/config.toml` 이 `env()` 로 읽음).
+3. 스키마를 적용합니다 (이미 적용돼 있으면 건너뜁니다).
 
 ```bash
-npx supabase start
+node scripts/neon-migrate.mjs
 ```
 
-```bash
-npx supabase db reset
-```
+`NEXT_PUBLIC_BACKEND` 가 `neon` 이 아니면 데모 모드로 실행됩니다. 로그인은 이메일/비밀번호가 기본이고, Google 은 아래처럼 켭니다.
 
-`supabase start` 가 출력하는 API URL 과 Publishable(anon) key 를 `.env.local` 에 넣습니다.
+### Google 로그인 (선택)
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
-```
+Google Cloud Console → API 및 서비스 → 사용자 인증 정보 → OAuth 클라이언트 ID (웹 애플리케이션)
 
-### 2) 호스팅 프로젝트
+- 승인된 리디렉션 URI: `<BETTER_AUTH_URL>/api/auth/callback/google` (로컬: `http://localhost:3000/api/auth/callback/google`)
+- `.env.local` 에 `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_GOOGLE_LOGIN=1`
 
-```bash
-npx supabase link --project-ref <project-ref>
-```
+로그인 흐름: `/login` → (이메일 또는 Google) → `/auth/callback` → 생년월일이 없으면 `/onboarding` → `/`. 만 19세 미만은 온보딩에서 이용이 제한됩니다 (복권 및 복권기금법).
 
-```bash
-npx supabase db push
-```
-
-Dashboard → Authentication → Sign In / Providers 에서 **Google 만** 켜고 이메일 가입은 끕니다.
-Authentication → URL Configuration 의 Redirect URLs 에 `https://<도메인>/auth/callback` 을 추가합니다.
-
-### Google OAuth 설정
-
-1. Google Cloud Console → API 및 서비스 → 사용자 인증 정보 → OAuth 클라이언트 ID (웹 애플리케이션)
-2. 승인된 리디렉션 URI
-   - 로컬: `http://127.0.0.1:54321/auth/v1/callback`
-   - 호스팅: `https://<project-ref>.supabase.co/auth/v1/callback`
-3. 발급된 ID/secret 을 로컬은 `.env`, 호스팅은 Dashboard 의 Google provider 에 입력
-
-로그인 흐름: `/login` → Google → `/auth/callback` (세션 교환) → 생년월일이 없으면 `/onboarding` → `/`.
-만 19세 미만은 온보딩에서 이용이 제한됩니다 (복권 및 복권기금법).
+데이터 접근: 브라우저 `neonRepo` → `POST /api/repo` → `src/lib/server/repoOps.ts` 가 **항상 로그인한 사용자의 `user_id` 조건으로** SQL 을 실행합니다.
 
 ## 티켓 사진 등록 (QR + OCR)
 
@@ -157,41 +139,30 @@ AI 코멘트는 감점 요인을 바탕으로 한 규칙 기반 문장입니다 
 - `settle_round(round)`: 크롤러가 당첨번호를 저장한 뒤 그 회차 티켓 전체를 재정산 (service_role 전용)
 - 4·5등은 고정(5만/5천원), 1~3등은 `winning_draws.prize_amounts` 의 회차별 1게임 당첨금
 
-## 토요일 크롤링 (Edge Function `crawl-draw`)
+## 토요일 크롤링 (`/api/cron/crawl-draw`)
 
-`supabase/functions/crawl-draw` — 동행복권에서 당첨번호(JSON), 등위별 당첨금 표, 1·2등 배출점을 가져와
-`winning_draws` 저장 → `settle_round` 로 `tickets.win_amount` 갱신 → `stores` 의 1·2등 배출 횟수·명당(`is_hot`: 1등 2회↑ 또는 2등 5회↑) 갱신.
-새 판매점 주소는 카카오 로컬 API 로 좌표를 붙입니다.
+`src/app/api/cron/crawl-draw/route.ts` — 동행복권 JSON API 에서 당첨번호·등위별 당첨금, 1·2등 배출점(좌표 포함)을 가져와 `winning_draws` 저장 →
+`settle_round()` 로 `tickets.win_amount` 자동 정산 → 단골점 1·2등 / 내 회차 결과 FCM 푸시 순서로 처리합니다. 이미 저장된 회차는 건너뜁니다.
 
-`supabase/migrations/20261104000300_schedule_crawl.sql` 의 pg_cron 잡이 **토요일 20:35 KST 부터 10분 간격**으로 호출하고
-(발표 지연 대비 자정까지), 일요일 오전에 한 번 더 당첨금·배출점을 보충합니다. 이미 저장된 회차는 건너뜁니다.
+`vercel.json` 의 Cron 이 **토요일 20:35 KST 부터 10분 간격**(발표 지연 대비 자정까지), 일요일 오전에 한 번 더(당첨금·배출점 보충) 호출합니다.
+Vercel Hobby 요금제는 Cron 이 하루 1번만 가능하므로, 그 경우 GitHub Actions 등 외부 스케줄러로 같은 주소를 호출하세요.
 
 설정 (값은 git 에 넣지 마세요):
 
-```bash
-npx supabase functions deploy crawl-draw --no-verify-jwt
+```
+CRON_SECRET=<긴 임의 문자열>   # Vercel Cron 이 Authorization: Bearer 로 자동 전송
+KAKAO_REST_API_KEY=            # 선택: 좌표가 없는 판매점만 보충 (보통 필요 없음)
 ```
 
-```bash
-npx supabase secrets set CRON_SECRET=<긴 임의 문자열> KAKAO_REST_API_KEY=<카카오 REST API 키>
-```
-
-SQL Editor 에서 pg_cron 이 쓸 값을 Vault 에 저장:
-
-```sql
-select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');
-select vault.create_secret('<CRON_SECRET 과 같은 값>', 'crawl_cron_secret');
-```
-
-과거 회차 채우기 (한 번에 최대 30회):
+수동 호출 / 과거 회차 채우기 (한 번에 최대 30회):
 
 ```bash
-curl -X POST "https://<project-ref>.supabase.co/functions/v1/crawl-draw" -H "Authorization: Bearer $CRON_SECRET" -H "Content-Type: application/json" -d '{"from": 1219, "to": 1248}'
+curl -H "Authorization: Bearer $CRON_SECRET" "https://<도메인>/api/cron/crawl-draw?from=1219&to=1248"
 ```
 
-> 동행복권 응답 형식은 예고 없이 바뀔 수 있습니다. 파서는 `supabase/functions/_shared/dhlottery.ts` 에 모여 있고
-> `tests/dhlottery.test.ts` 의 예시 HTML/JSON 으로 테스트합니다. (개발 환경에서 동행복권 사이트에 직접 접속할 수 없어 실제 응답으로는 검증하지 못했습니다.)
-> 판매점 코드가 7자리가 아니면 `stores` 에는 넣지 않고, `winning_draws.store_codes` 에 원본 ID 만 남깁니다.
+> 동행복권 응답 형식은 예고 없이 바뀔 수 있습니다 (2025 개편으로 옛 `common.do` 주소는 막혔습니다). 파서는 `src/lib/crawler/dhlottery.ts` 에 모여 있고
+> `tests/dhlottery.test.ts` 의 예시 JSON 으로 테스트합니다. 짧은 시간에 요청을 많이 보내면 응답이 느려질 수 있으니 과거 데이터는 나눠서 채우세요.
+> 판매점 ID 는 실제로 **숫자 8자리**여서 스키마는 7~8자리를 허용합니다.
 
 ## 주변 로또집 · 명당 · 지나가는 길 알림 (`/map`)
 
@@ -212,19 +183,20 @@ curl -X POST "https://<project-ref>.supabase.co/functions/v1/crawl-draw" -H "Aut
 
 1. Firebase 프로젝트 생성 → 웹 앱 추가 → 구성값을 `.env.local` 의 `NEXT_PUBLIC_FIREBASE_*` 에
 2. 클라우드 메시징 → 웹 푸시 인증서(VAPID 키) 생성 → `NEXT_PUBLIC_FIREBASE_VAPID_KEY`
-3. 서비스 계정 → 새 비공개 키(JSON) → Edge Function 시크릿 `FCM_SERVICE_ACCOUNT` (JSON 한 줄)
+3. 서비스 계정 → 새 비공개 키(JSON) → 환경변수 `FCM_SERVICE_ACCOUNT` (JSON 한 줄)
 
-```bash
-npx supabase secrets set FCM_SERVICE_ACCOUNT="$(cat service-account.json)" APP_URL=https://<배포 도메인>
+```
+FCM_SERVICE_ACCOUNT=<서비스 계정 JSON 한 줄>
+APP_URL=https://<배포 도메인>
 ```
 
 - 웹 푸시는 `public/sw.js` 의 `push` 이벤트에서 직접 표시합니다 (Firebase SDK 를 서비스 워커에 넣지 않음). iPhone 은 홈 화면에 추가한 PWA 에서만 웹 푸시가 됩니다.
 - 토큰은 `register_push_token()` RPC 로 저장 — 같은 기기 토큰이 다른 계정에 묶여 있으면 현재 계정으로 옮기고, 만료된 토큰은 발송 시 자동 삭제합니다.
-- Edge Function 쪽 발송은 서비스 계정 JWT 를 WebCrypto 로 직접 서명해 FCM HTTP v1 을 호출합니다 (`supabase/functions/_shared/fcm.ts`).
+- 서버(크롤러) 쪽 발송은 서비스 계정 JWT 를 WebCrypto 로 직접 서명해 FCM HTTP v1 을 호출합니다 (`src/lib/crawler/fcm.ts`).
 
 ## DB 스키마
 
-`supabase/migrations/20261104000100_init_schema.sql`
+`db/neon/schema.sql` (Better Auth 테이블 + 앱 테이블 + 정산/가계부 함수)
 
 | 테이블 | 설명 |
 | --- | --- |
@@ -246,11 +218,14 @@ npx supabase secrets set FCM_SERVICE_ACCOUNT="$(cat service-account.json)" APP_U
 - `users` 에 월 예산·알림 설정, `stores` 에 영업시간, `tickets` 에 `settled_at`, `winning_draws` 에 `notified_at` 을 더했습니다.
 - 각 게임은 1~45 의 서로 다른 정수 6개, 티켓당 1~5게임만 허용(CHECK 제약).
 
-### 보안 (RLS / 권한)
+### 보안 (접근 제어)
 
-- `users`, `tickets` 는 본인 행만 조회·수정 가능. `win_amount` 는 사용자가 직접 수정할 수 없습니다(컬럼 단위 GRANT).
-- `winning_draws`, `stores`, `dream_map` 은 누구나 읽기 전용, 쓰기는 `service_role`(Edge Function) 만.
-- 2026-10-30 부터 Supabase 는 새 테이블을 Data API 역할에 자동 노출하지 않으므로, 마이그레이션에서 필요한 권한만 명시적으로 GRANT 합니다.
+Neon 은 순수 Postgres 라서 Supabase 의 RLS/역할 대신 **서버 코드**가 접근을 제한합니다.
+
+- 브라우저는 DB 에 직접 붙지 않고 `/api/repo` 만 호출합니다. 로그인하지 않으면 401 이고, `users`·`tickets`·`favorite_stores`·`push_tokens` 는 항상 세션의 `user_id` 조건으로만 읽고 씁니다.
+- `win_amount` 는 사용자 입력으로 바꿀 수 없습니다 (API 가 허용 컬럼만 업데이트, 정산은 트리거와 `settle_round()` 가 계산).
+- `winning_draws`, `stores`, `dream_map` 은 읽기 전용이고, 쓰기는 `CRON_SECRET` 으로 보호된 크롤러만 합니다.
+- `DATABASE_URL`, `BETTER_AUTH_SECRET`, `CRON_SECRET` 은 서버 환경변수로만 두고 `NEXT_PUBLIC_` 을 붙이지 않습니다.
 
 ## 프로젝트 구조
 
@@ -265,60 +240,39 @@ src/
   lib/
     lotto/                            회차 · 당첨 등수 · 생일수 · QR 파서 · 추천 · 품질 점수 (순수 함수)
     scan/                             사진 → QR / OCR 파이프라인 (브라우저 전용)
-    repo/                             데이터 접근 계층 (Supabase 구현 / 데모 구현)
-    supabase/                         브라우저 · 서버 · 미들웨어 클라이언트
+    repo/                             데이터 접근 계층 (Neon 구현 / 데모 구현)
+    server/                           서버 전용: DB 풀 · Better Auth · 세션 · repoOps(본인 데이터 SQL)
+    crawler/                          동행복권 파서 · FCM 발송 · 크롤링/푸시
+    authClient.ts                     Better Auth 브라우저 클라이언트
     geo.ts · push.ts · notify.ts      거리/영업중/지오펜스 · FCM 등록 · 로컬 알림
     ledger.ts                         가계부 집계 (SQL get_ledger_stats 와 동일)
     nativeBridge.ts                   Flutter WebView 브리지
   store/useAppStore.ts                Zustand 스토어
-  middleware.ts                       세션 갱신 + 비로그인 리다이렉트
-supabase/
-  config.toml                         Google 로그인만 활성화, Storage 비활성화
-  migrations/                         스키마 · 정산/가계부 함수 · pg_cron 스케줄
-  functions/crawl-draw/               토요일 당첨번호 크롤러 (Deno)
-  functions/_shared/                  동행복권 파서 · 카카오 지오코딩 · FCM 발송 · 회차 계산
-  seed.sql                            로컬 전용 샘플 판매점
-public/
-  manifest.json, sw.js, icons/        PWA
-```
-
-## Flutter WebView 래핑 메모
-
-- Google 은 WebView 안 OAuth 를 막습니다. 앱에서는 `ZzolgitNative` JavaScriptChannel 로 `google-sign-in` 요청을 받아
-  네이티브 Google 로그인 후 `google-id-token` 이벤트로 ID 토큰을 돌려주면, 웹이 `signInWithIdToken` 으로 세션을 만듭니다
-  (`src/lib/nativeBridge.ts`).
-- 웹은 `env(safe-area-inset-*)` 를 사용하므로 WebView 를 edge-to-edge 로 띄워도 됩니다.
-- 푸시: WebView 에서는 웹 푸시가 안 되므로 앱이 네이티브 FCM 토큰을 `push-token` 메시지로 보내면 웹이 `register_push_token` 으로 저장합니다
-  (서버 발송 코드는 그대로). 알림 데이터의 `url` 로 해당 화면을 열면 됩니다.
-- 지오펜싱: 브라우저 `watchPosition` 은 포그라운드 전용이라, 앱에서는 네이티브 지오펜스(명당 좌표는 `stores` 에서 조회)로 바꾸면 백그라운드 알림이 가능합니다.
-- 카메라: `<input capture>` 를 쓰므로 WebView 에서 파일 선택/카메라 권한만 연결하면 됩니다. QR 은 BarcodeDetector 가 없어도 jsQR 로 동작합니다.
-
-## 스크립트
-
-| 명령 | 설명 |
-| --- | --- |
-| `npm run dev` | 개발 서버 |
-| `npm run build` / `npm start` | 프로덕션 빌드 / 실행 |
-| `npm run lint` / `npm run typecheck` | ESLint / 타입 검사 |
-| `npm test` | 단위 테스트 (Vitest) — 추천/품질/QR/OCR 파서/가계부/크롤러 파서/법적 문구 가드 |
-| `node scripts/copy-tesseract-assets.mjs` | OCR 엔진 자산을 `public/tesseract` 로 복사 (postinstall 에서 자동 실행) |
-| `node scripts/render-icons.mjs` | `public/icon.svg` → PWA PNG 아이콘 재생성 (Playwright) |
+  middleware.ts                       세션 쿠키 확인 + 비로그인 리다이렉트
+  app/api/                            /api/auth(Better Auth) · /api/repo(데이터) · /api/cron/crawl-draw(크롤러)
+db/neon/
+  schema.sql                          Better Auth 테이블 + 앱 테이블 + 정산/가계부 함수
+  seed.sql                            샘플 판매점 (수동 실행용, 운영 DB 에는 넣지 마세요)
+scripts/neon-migrate.mjs              스키마 적용
+vercel.json                           크롤러 Cron 스케줄
 
 ## 환경 변수 요약
 
 | 위치 | 변수 | 용도 |
 | --- | --- | --- |
-| `.env.local` (Next) | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase (없으면 데모 모드) |
+| `.env.local` | `NEXT_PUBLIC_BACKEND=neon` | 백엔드 선택 (아니면 데모 모드) |
+| | `DATABASE_URL` | Neon 연결 문자열 (서버 전용) |
+| | `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` | 세션 서명 · 서비스 주소 |
+| | `GOOGLE_CLIENT_ID/SECRET`, `NEXT_PUBLIC_GOOGLE_LOGIN` | Google 로그인 (선택) |
+| | `CRON_SECRET` | 크롤러 인증 |
+| | `KAKAO_REST_API_KEY`, `FCM_SERVICE_ACCOUNT`, `APP_URL` | 지오코딩 · 푸시 (선택) |
 | | `NEXT_PUBLIC_KAKAO_JS_KEY` | 카카오맵 |
 | | `NEXT_PUBLIC_FIREBASE_*` | FCM 웹 푸시 |
-| `.env` (Supabase CLI) | `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID/SECRET` | Google 로그인 |
-| Edge Function 시크릿 | `CRON_SECRET`, `KAKAO_REST_API_KEY`, `FCM_SERVICE_ACCOUNT`, `APP_URL` | 크롤러 인증 · 지오코딩 · 푸시 (`supabase/functions/.env.example`) |
-| Supabase Vault | `project_url`, `crawl_cron_secret` | pg_cron 이 크롤러 호출 |
 
 ## 알려진 사항
 
 - **Next.js 14 는 지원이 끝난 버전**이며, 14.2.35 에는 15.x/16.x 에서만 고쳐진 보안 권고가 남아 있습니다.
   요구 스택(Next 14)을 지키되 노출면을 줄이기 위해 이미지 최적화 API 를 끄고(`images.unoptimized`), Server Actions·rewrites 를 쓰지 않습니다.
-  운영 배포 전 Next 16 업그레이드를 권장합니다 (데이터 접근이 클라이언트 + Supabase 중심이라 이전 부담이 작습니다).
-- 동행복권·카카오 API 는 개발 환경 네트워크 정책상 직접 호출해 보지 못했습니다. 파서·요청 형식은 테스트용 예시 데이터로만 검증되어 있으니 첫 배포 후 `crawl-draw` 를 한 회차로 실행해 확인해 주세요.
-- 판매점 코드는 요구사항대로 숫자 7자리로 가정했습니다 (`STORE_CODE_LENGTH`, `normalizeStoreCode`).
+  운영 배포 전 Next 16 업그레이드를 권장합니다 (데이터 접근이 `/api/repo` 한 곳에 모여 있어 이전 부담이 작습니다).
+- 동행복권 JSON API(2026-11 기준)로 1243~1248회를 실제로 수집해 확인했습니다. 응답 형식이 바뀌면 `src/lib/crawler/dhlottery.ts` 파서와 테스트를 고치세요. 카카오 지오코딩은 호출해 보지 못했습니다(동행복권이 좌표를 주므로 거의 쓰이지 않습니다).
+- 동행복권 판매점 ID 는 숫자 8자리이고 DB·크롤러는 7~8자리를 받지만, 티켓 사진 OCR(`STORE_CODE_LENGTH`)과 수동 입력 폼은 아직 7자리 기준입니다. 실제 티켓에 인쇄된 코드 형식을 확인한 뒤 맞춰야 합니다.

@@ -1,6 +1,5 @@
 /**
- * Supabase 스키마 타입 (supabase/migrations 기준).
- * 스키마가 바뀌면 `npx supabase gen types typescript --local > src/types/database.ts` 로 다시 생성할 수 있습니다.
+ * DB 스키마 타입 (db/neon/schema.sql 기준). 스키마가 바뀌면 이 파일도 함께 고치세요.
  */
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 

@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react';
 import { Disclaimer } from '@/components/Disclaimer';
 import { Logo } from '@/components/Logo';
 import { LogoMark } from '@/components/LogoMark';
-import { IS_DEMO } from '@/lib/env';
+import { authClient } from '@/lib/authClient';
+import { GOOGLE_LOGIN, IS_DEMO } from '@/lib/env';
 import { isNativeApp, onNativeMessage, postToNative } from '@/lib/nativeBridge';
 import { getRepo } from '@/lib/repo';
-import { getBrowserSupabase } from '@/lib/supabase/client';
 import { useAppStore } from '@/store/useAppStore';
 
 const FEATURES = [
@@ -24,18 +24,17 @@ export function LoginView({ next, hasError }: { next: string; hasError: boolean 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(hasError ? '로그인에 실패했어요. 다시 시도해 주세요.' : null);
 
-  // Flutter 래핑 앱: 네이티브 구글 로그인 결과(ID 토큰)를 받아 Supabase 세션 생성
+  // Flutter 래핑 앱: 네이티브 구글 로그인 결과(ID 토큰)를 받아 세션 생성
   useEffect(() => {
     if (!isNativeApp()) return;
     return onNativeMessage(async (msg) => {
       if (msg.type === 'google-id-token') {
-        const { error: e } = await getBrowserSupabase().auth.signInWithIdToken({
+        const { error: e } = await authClient.signIn.social({
           provider: 'google',
-          token: msg.idToken,
-          nonce: msg.nonce,
+          idToken: { token: msg.idToken, nonce: msg.nonce },
         });
         if (e) {
-          setError(e.message);
+          setError(e.message ?? '로그인에 실패했어요');
           setBusy(false);
           return;
         }
@@ -48,24 +47,45 @@ export function LoginView({ next, hasError }: { next: string; hasError: boolean 
     });
   }, [next, router]);
 
-  async function signIn() {
+  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  async function enterDemo() {
+    setBusy(true);
+    await getRepo().updateProfile({});
+    useAppStore.setState({ status: 'idle' });
+    router.replace(next);
+  }
+
+  async function signInGoogle() {
     setBusy(true);
     setError(null);
     try {
-      if (IS_DEMO) {
-        await getRepo().updateProfile({});
-        useAppStore.setState({ status: 'idle' });
-        router.replace(next);
-        return;
-      }
       if (postToNative({ type: 'google-sign-in' })) return; // 앱이 결과를 보내줄 때까지 대기
-
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
-      const { error: e } = await getBrowserSupabase().auth.signInWithOAuth({
+      const { error: e } = await authClient.signIn.social({
         provider: 'google',
-        options: { redirectTo, queryParams: { prompt: 'select_account' } },
+        callbackURL: `/auth/callback?next=${encodeURIComponent(next)}`,
       });
-      if (e) throw e;
+      if (e) throw new Error(e.message);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '로그인에 실패했어요');
+      setBusy(false);
+    }
+  }
+
+  async function submitEmail(ev: React.FormEvent) {
+    ev.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const res =
+        mode === 'signup'
+          ? await authClient.signUp.email({ email, password, name: email.split('@')[0] || '회원' })
+          : await authClient.signIn.email({ email, password });
+      if (res.error) throw new Error(res.error.message || '요청에 실패했어요');
+      useAppStore.setState({ status: 'idle' });
+      window.location.assign(`/auth/callback?next=${encodeURIComponent(next)}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : '로그인에 실패했어요');
       setBusy(false);
@@ -98,20 +118,62 @@ export function LoginView({ next, hasError }: { next: string; hasError: boolean 
             {error}
           </p>
         )}
-        <button
-          onClick={signIn}
-          disabled={busy}
-          className="btn h-14 w-full border border-ink-500 bg-white text-[16px] text-[#1f1f1f] hover:bg-ink-700"
-        >
-          {IS_DEMO ? (
-            '데모로 둘러보기'
-          ) : (
-            <>
-              <GoogleIcon />
-              {busy ? '구글로 이동 중…' : 'Google로 시작하기'}
-            </>
-          )}
-        </button>
+        {IS_DEMO ? (
+          <button
+            onClick={enterDemo}
+            disabled={busy}
+            className="btn h-14 w-full border border-ink-500 bg-white text-[16px] text-[#1f1f1f] hover:bg-ink-700"
+          >
+            데모로 둘러보기
+          </button>
+        ) : (
+          <>
+            <form onSubmit={submitEmail} className="space-y-2">
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="이메일"
+                className="h-12 w-full rounded-2xl border border-ink-500 bg-ink-800 px-4 text-[15px] outline-none focus:border-gold"
+              />
+              <input
+                type="password"
+                required
+                minLength={8}
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="비밀번호 (8자 이상)"
+                className="h-12 w-full rounded-2xl border border-ink-500 bg-ink-800 px-4 text-[15px] outline-none focus:border-gold"
+              />
+              <button type="submit" disabled={busy} className="btn-gold h-14 w-full text-[16px]">
+                {busy ? '처리 중…' : mode === 'signup' ? '회원가입' : '로그인'}
+              </button>
+            </form>
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === 'login' ? 'signup' : 'login');
+                setError(null);
+              }}
+              className="w-full text-center text-[13px] text-fog-300 underline"
+            >
+              {mode === 'login' ? '처음이세요? 회원가입' : '이미 계정이 있어요 · 로그인'}
+            </button>
+            {GOOGLE_LOGIN && (
+              <button
+                onClick={signInGoogle}
+                disabled={busy}
+                className="btn h-14 w-full border border-ink-500 bg-white text-[16px] text-[#1f1f1f] hover:bg-ink-700"
+              >
+                <GoogleIcon />
+                Google로 시작하기
+              </button>
+            )}
+          </>
+        )}
         <p className="text-center text-[11px] text-fog-500">만 19세 이상만 이용할 수 있어요</p>
         <Disclaimer />
       </div>

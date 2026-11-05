@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    { "path": "/api/cron/crawl-draw", "schedule": "35,45,55 11 * * 6" },
+    { "path": "/api/cron/crawl-draw", "schedule": "*/10 12-15 * * 6" },
+    { "path": "/api/cron/crawl-draw", "schedule": "0 0-3 * * 0" }
+  ]
+}

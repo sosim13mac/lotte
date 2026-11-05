@@ -1,5 +1,5 @@
 /**
- * FCM HTTP v1 발송 (서비스 계정 JWT 를 WebCrypto 로 서명 — Deno / Node 공통, 외부 SDK 없음)
+ * FCM HTTP v1 발송 (서비스 계정 JWT 를 WebCrypto 로 서명 — 외부 SDK 없음)
  * 환경변수 FCM_SERVICE_ACCOUNT = Firebase 콘솔 > 프로젝트 설정 > 서비스 계정 > 새 비공개 키(JSON) 내용
  */
 export interface ServiceAccount {

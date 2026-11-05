@@ -1,6 +1,6 @@
 /**
- * 가계부 집계 — supabase 의 get_ledger_stats() 와 같은 모양·같은 반올림 규칙.
- * Supabase 모드에서는 RPC 결과를 쓰고, 데모 모드와 테스트에서는 이 함수를 씁니다.
+ * 가계부 집계 — DB 의 get_ledger_stats() 와 같은 모양·같은 반올림 규칙.
+ * Neon 모드에서는 get_ledger_stats() 결과를 쓰고, 데모 모드와 테스트에서는 이 함수를 씁니다.
  */
 import type { Ticket } from '@/lib/repo/types';
 

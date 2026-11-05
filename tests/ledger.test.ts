@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { budgetLevel, computeLedgerStats, monthSpent, roundHalfAway } from '@/lib/ledger';
 
-// supabase get_ledger_stats() 를 로컬 Postgres 16 에서 실행한 결과와 같은 입력/출력
+// DB get_ledger_stats() 를 로컬 Postgres 16 에서 실행한 결과와 같은 입력/출력
 const tickets = [
   { amount: 3000, win_amount: 50_055_000, purchase_date: '2026-10-22T19:30:00+09:00' },
   { amount: 2000, win_amount: 0, purchase_date: '2026-10-31T10:00:00+09:00' },
