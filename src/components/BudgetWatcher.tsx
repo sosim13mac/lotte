@@ -31,7 +31,7 @@ export function BudgetWatcher() {
         ? `이번 달 로또 예산을 넘었어요 (${formatWon(spent)} / ${formatWon(budget)}, ${pct}%)`
         : `이번 달 로또 예산의 ${pct}%를 썼어요 (${formatWon(spent)} / ${formatWon(budget)})`;
     showToast(text, 'warning');
-    void showLocalNotification('쫄깃로또 예산 알림', text, '/stats', 'budget');
+    void showLocalNotification('로또당 예산 알림', text, '/stats', 'budget');
   }, [tickets, budget, showToast]);
 
   return null;

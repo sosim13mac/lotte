@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "쫄깃로또 - 내 로또 생활 관리",
-  "short_name": "쫄깃로또",
+  "name": "로또당 - 내 로또 생활 관리",
+  "short_name": "로또당",
   "description": "티켓 사진 한 장으로 자동 등록하고, 한 줄씩 쫄깃하게 결과를 열어보는 로또 관리 앱. 본 앱은 통계 참고 도구이며 당첨을 보장하지 않습니다.",
   "lang": "ko-KR",
   "dir": "ltr",
@@ -17,8 +17,7 @@
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
     {

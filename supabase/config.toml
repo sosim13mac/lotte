@@ -115,7 +115,7 @@ port = 54324
 # sender_name = "Admin"
 
 [storage]
-# 쫄깃로또는 사진 원본을 저장하지 않습니다 (QR 텍스트 + 판매점 코드만 저장). Storage 미사용.
+# 로또당은 사진 원본을 저장하지 않습니다 (QR 텍스트 + 판매점 코드만 저장). Storage 미사용.
 enabled = false
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
@@ -223,7 +223,7 @@ web3 = 30
 # secret = ""
 
 [auth.email]
-# 쫄깃로또는 Google 로그인만 지원합니다. 이메일 가입은 막아둡니다.
+# 로또당은 Google 로그인만 지원합니다. 이메일 가입은 막아둡니다.
 enable_signup = false
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
@@ -325,7 +325,7 @@ max_frequency = "5s"
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
-# 쫄깃로또는 Google 로그인만 사용합니다.
+# 로또당은 Google 로그인만 사용합니다.
 # Google Cloud Console > OAuth 클라이언트(웹)의 "승인된 리디렉션 URI"에
 #   - 로컬:   http://127.0.0.1:54321/auth/v1/callback
 #   - 호스팅: https://<project-ref>.supabase.co/auth/v1/callback

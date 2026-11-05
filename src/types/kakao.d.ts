@@ -1,4 +1,4 @@
-/* 카카오맵 JavaScript SDK 중 쫄깃로또가 쓰는 부분만 최소 타입 선언 */
+/* 카카오맵 JavaScript SDK 중 로또당이 쓰는 부분만 최소 타입 선언 */
 declare namespace kakao.maps {
   function load(callback: () => void): void;
 

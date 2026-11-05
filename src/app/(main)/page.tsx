@@ -4,13 +4,13 @@ import { LatestDrawCard } from '@/components/home/LatestDrawCard';
 import { NextDrawCard } from '@/components/home/NextDrawCard';
 import { QuickQualityCard } from '@/components/home/QuickQualityCard';
 import { RecommendCard } from '@/components/home/RecommendCard';
-import { Logo } from '@/components/Logo';
+import { LogoBanner } from '@/components/LogoBanner';
 
 export default function HomePage() {
   return (
     <div className="space-y-4 lg:grid lg:pt-6 lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0">
       <header className="flex items-center justify-between pb-1 pt-6 lg:hidden">
-        <Logo className="text-[28px]" />
+        <LogoBanner height={48} priority />
       </header>
       <NextDrawCard />
       <RecommendCard />

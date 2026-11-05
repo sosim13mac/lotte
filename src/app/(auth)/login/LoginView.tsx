@@ -4,8 +4,8 @@ import { Camera, ChartColumn, MapPin, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Disclaimer } from '@/components/Disclaimer';
-import { Ball } from '@/components/lotto/Ball';
 import { Logo } from '@/components/Logo';
+import { LogoMark } from '@/components/LogoMark';
 import { IS_DEMO } from '@/lib/env';
 import { isNativeApp, onNativeMessage, postToNative } from '@/lib/nativeBridge';
 import { getRepo } from '@/lib/repo';
@@ -75,13 +75,7 @@ export function LoginView({ next, hasError }: { next: string; hasError: boolean 
   return (
     <main className="pt-safe mx-auto flex min-h-dvh max-w-[480px] flex-col px-6 pb-8">
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <div className="mb-8 flex gap-2">
-          {[7, 12, 19, 28, 33, 42].map((n, i) => (
-            <span key={n} className="animate-floaty" style={{ animationDelay: `${i * 0.15}s` }}>
-              <Ball n={i % 2 === 0 ? n : null} hidden={i % 2 === 1} size="md" />
-            </span>
-          ))}
-        </div>
+        <LogoMark size={160} priority className="animate-floaty mb-6" />
         <Logo className="text-5xl" />
         <p className="mt-3 text-[15px] text-fog-300">
           추천보다 재미있게,

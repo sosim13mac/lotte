@@ -106,7 +106,7 @@ export function OnboardingView({ next }: { next: string }) {
 
         <div className="flex-1" />
         <button type="submit" className="btn-gold mt-8 h-14 w-full" disabled={!birth || tooYoung || invalid || busy}>
-          {busy ? '저장 중…' : '쫄깃로또 시작하기'}
+          {busy ? '저장 중…' : '로또당 시작하기'}
         </button>
       </form>
     </main>

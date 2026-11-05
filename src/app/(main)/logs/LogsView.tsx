@@ -30,11 +30,13 @@ function vibrate(pattern: number | number[]) {
 function summarize(tickets: Ticket[], draw: WinningDraw) {
   const ranks: Partial<Record<Rank, number>> = {};
   let won = 0;
+  let net = 0;
   let unknown = false;
   let best: Rank | null = null;
   for (const t of tickets) {
     const r = ticketResult(t.games, draw);
     won += r.total;
+    net += r.net;
     unknown ||= r.hasUnknownPrize;
     r.games.forEach((g) => {
       if (!g.rank) return;
@@ -43,7 +45,7 @@ function summarize(tickets: Ticket[], draw: WinningDraw) {
     });
   }
   const spent = tickets.reduce((s, t) => s + t.amount, 0);
-  return { ranks, won, spent, unknown, best: best as Rank | null };
+  return { ranks, won, net, spent, unknown, best: best as Rank | null };
 }
 
 function pendingLabel(round: number, latest: number): string {
@@ -357,6 +359,18 @@ export function LogsView() {
                   </dd>
                 </div>
               </dl>
+              {summary.won > 0 && (
+                <p className="num mt-2 rounded-2xl bg-gold/15 py-2 text-center text-sm">
+                  <span className="text-xs text-fog-300">세금 떼고 실수령액 </span>
+                  <b className="text-gold-deep">
+                    {formatWon(summary.net)}
+                    {summary.unknown ? '+' : ''}
+                  </b>
+                  {summary.net < summary.won && (
+                    <span className="block text-[11px] text-fog-400">제세금 {formatWon(summary.won - summary.net)} 차감 (게임별 기준)</span>
+                  )}
+                </p>
+              )}
               {hasSealed && mode === 'result' && (
                 <button className="btn-ghost btn-sm mt-3 w-full" onClick={revealRest} disabled={flipping}>
                   <Eye className="h-4 w-4" /> 나머지 번호도 보기

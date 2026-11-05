@@ -3,7 +3,7 @@
 import { ChartColumn, House, MapPin, Settings, Ticket } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Logo } from '@/components/Logo';
+import { LogoBanner } from '@/components/LogoBanner';
 import { cn } from '@/lib/cn';
 
 const TABS = [
@@ -18,7 +18,9 @@ export function BottomNav({ badges }: { badges?: Partial<Record<string, number>>
   const pathname = usePathname();
   return (
     <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-ink-600 bg-ink-800/90 backdrop-blur-xl lg:bg-ink-800 lg:inset-y-0 lg:right-auto lg:w-56 lg:border-r lg:border-t-0 lg:pb-0">
-      <Logo className="hidden px-7 pt-8 text-[30px] lg:block" />
+      <div className="hidden px-6 pt-8 lg:block">
+        <LogoBanner height={56} />
+      </div>
       <ul className="mx-auto grid max-w-[480px] grid-cols-5 md:max-w-xl lg:flex lg:max-w-none lg:flex-col lg:gap-1 lg:p-4 lg:pt-6">
         {TABS.map(({ href, label, Icon }) => {
           const active = href === '/' ? pathname === '/' : pathname.startsWith(href);

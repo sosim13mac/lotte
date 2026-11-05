@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { birthdayNumber } from '@/lib/lotto/birthday';
-import { rankOf, ticketResult } from '@/lib/lotto/prize';
+import { lottoTax, netPrize, rankOf, ticketResult } from '@/lib/lotto/prize';
 
 const draw = {
   numbers: [3, 12, 19, 28, 33, 42],
@@ -50,5 +50,24 @@ describe('생일수', () => {
   it('잘못된 형식', () => {
     expect(birthdayNumber('')).toBeNull();
     expect(birthdayNumber('1992-13-01')).toBeNull();
+  });
+});
+
+describe('실수령액', () => {
+  it('200만원 이하는 비과세', () => {
+    expect(netPrize(5_000)).toBe(5_000);
+    expect(netPrize(2_000_000)).toBe(2_000_000);
+  });
+  it('200만원 초과 3억 이하는 22%', () => {
+    expect(lottoTax(50_000_000)).toBe(11_000_000);
+    expect(netPrize(300_000_000)).toBe(234_000_000);
+  });
+  it('3억 초과분은 33%', () => {
+    expect(netPrize(2_000_000_000)).toBe(2_000_000_000 - 66_000_000 - 561_000_000);
+  });
+  it('ticketResult 가 게임별 세금을 반영', () => {
+    const r = ticketResult([[3, 12, 19, 28, 33, 42], [1, 2, 3, 12, 19, 44]], draw);
+    expect(r.total).toBe(2_000_005_000);
+    expect(r.net).toBe(netPrize(2_000_000_000) + 5_000);
   });
 });

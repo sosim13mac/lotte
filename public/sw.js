@@ -1,4 +1,4 @@
-/* 쫄깃로또 서비스 워커
+/* 로또당 서비스 워커
  * - 정적 자산(_next/static, 아이콘, OCR 엔진) 캐시 우선
  * - 페이지 이동은 네트워크 우선, 실패 시 /offline
  * - Supabase 등 외부 요청과 사진은 절대 캐시하지 않음
@@ -61,11 +61,11 @@ self.addEventListener('push', (event) => {
   try {
     payload = event.data ? event.data.json() : {};
   } catch (e) {
-    payload = { notification: { title: '쫄깃로또', body: event.data ? event.data.text() : '' } };
+    payload = { notification: { title: '로또당', body: event.data ? event.data.text() : '' } };
   }
   const n = payload.notification || {};
   const data = payload.data || {};
-  const title = n.title || data.title || '쫄깃로또';
+  const title = n.title || data.title || '로또당';
   event.waitUntil(
     self.registration.showNotification(title, {
       body: n.body || data.body || '',

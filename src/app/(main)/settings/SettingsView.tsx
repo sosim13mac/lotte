@@ -184,7 +184,7 @@ export function SettingsView() {
       </section>
 
       <Disclaimer className="mt-8" />
-      <p className="mt-2 text-center text-[11px] text-fog-500">쫄깃로또 v0.1.0</p>
+      <p className="mt-2 text-center text-[11px] text-fog-500">로또당 v0.1.0</p>
     </div>
   );
 }

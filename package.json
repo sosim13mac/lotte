@@ -2,7 +2,7 @@
   "name": "zzolgit-lotto",
   "version": "0.1.0",
   "private": true,
-  "description": "쫄깃로또 - 개인화 로또 관리 PWA",
+  "description": "로또당 - 개인화 로또 관리 PWA",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -168,6 +168,11 @@ export function TicketCard({
         <p className="num mt-3 border-t border-ink-600 pt-3 text-right text-xs text-fog-300">
           당첨금 <b className={cn('text-sm', total.total > 0 ? 'text-gold-deep' : 'text-fog')}>{formatWon(total.total)}</b>
           {total.hasUnknownPrize && ' + 집계 중'}
+          {total.total > 0 && (
+            <>
+              {' · '}실수령액 <b className="text-sm text-gold-deep">{formatWon(total.net)}</b>
+            </>
+          )}
         </p>
       )}
     </article>
