@@ -34,7 +34,7 @@ export function FavoriteButton({ store, className }: { store: Store; className?:
       aria-label={on ? `${store.name} 단골 해제` : `${store.name} 단골 등록`}
       className={cn('rounded-full p-2 transition hover:bg-ink-700', className)}
     >
-      <Heart className={cn('h-5 w-5', on ? 'fill-chewy text-chewy' : 'text-fog-400')} />
+      <Heart className={cn('h-5 w-5', on ? 'fill-gain text-gain' : 'text-fog-400')} />
     </button>
   );
 }
@@ -67,7 +67,7 @@ export function StoreCard({
         <span
           className={cn(
             'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
-            store.is_hot ? 'bg-gold text-deep' : 'bg-ink-700 text-fog-300',
+            store.is_hot ? 'bg-gold text-white' : 'bg-ink-700 text-fog-300',
           )}
         >
           <Crown className="h-6 w-6" />

@@ -44,7 +44,7 @@ function RowBadge({
     const r = gameResult(game, draw);
     key = `done-${r.rank ?? 'x'}`;
     content = r.rank ? (
-      <span className="num inline-flex flex-col items-end rounded-xl bg-gold px-2 py-1 text-right leading-tight text-deep">
+      <span className="num inline-flex flex-col items-end rounded-xl bg-gold px-2 py-1 text-right leading-tight text-white">
         <b className="text-[13px]">{RANK_LABEL[r.rank]}!</b>
         <span className="text-[10px] font-bold">{r.prize === null ? '금액 집계 중' : formatWon(r.prize)}</span>
       </span>

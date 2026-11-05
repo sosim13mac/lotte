@@ -131,7 +131,7 @@ export function MapView() {
         {FILTERS.map(([key, label]) => (
           <button
             key={key}
-            className={cn('chip px-4 py-1.5 text-sm', filter === key && 'bg-gold font-bold text-deep')}
+            className={cn('chip px-4 py-1.5 text-sm', filter === key && 'bg-gold font-bold text-white')}
             aria-pressed={filter === key}
             onClick={() => setFilter(key)}
           >
@@ -203,7 +203,7 @@ export function MapView() {
                   <span
                     className={cn(
                       'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl',
-                      s.is_hot ? 'bg-gold text-deep' : 'bg-ink-700 text-fog-400',
+                      s.is_hot ? 'bg-gold text-white' : 'bg-ink-700 text-fog-400',
                     )}
                     aria-label={s.is_hot ? '명당' : undefined}
                   >

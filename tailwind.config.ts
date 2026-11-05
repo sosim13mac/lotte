@@ -6,22 +6,22 @@ const config: Config = {
     extend: {
       colors: {
         ink: {
-          DEFAULT: '#F1FBF7', // 앱 배경 (연한 민트)
-          900: '#F1FBF7',
+          DEFAULT: '#F0F6FF', // 앱 배경 (연한 하늘색)
+          900: '#F0F6FF',
           800: '#FFFFFF', // 카드
-          700: '#EAF8F2', // 카드 위 요소
-          600: '#D6EFE5', // 구분선
-          500: '#BFE6D6',
+          700: '#E7F0FF', // 카드 위 요소
+          600: '#D2E2FA', // 구분선
+          500: '#B7CFF5',
         },
         fog: {
-          DEFAULT: '#0A3329',
-          300: '#3F6B5F',
-          400: '#4A7466',
-          500: '#547A6C',
+          DEFAULT: '#0E2358', // 로고 외곽선 남색
+          300: '#3B4E86',
+          400: '#46598F',
+          500: '#51659A',
         },
-        gold: { DEFAULT: '#12A178', deep: '#0B6B52', soft: '#3CC49A' }, // 브랜드 민트
-        deep: '#04261E', // 민트/코랄 채움 위 글자색
-        chewy: { DEFAULT: '#FF6B57', soft: '#FF9A8B', deep: '#C2412E' }, // 쫄깃 포인트 컬러 (코랄)
+        gold: { DEFAULT: '#1F63E0', deep: '#1648B0', soft: '#4D8BF2' }, // 브랜드 로열블루 (로고 배경색)
+        deep: '#0B1B45', // 노랑·공 색 채움 위 글자색 (파랑 채움 위는 text-white)
+        chewy: { DEFAULT: '#FFC928', soft: '#FFD95E', deep: '#8A5A00' }, // 포인트 컬러 (로고 노랑)
         gain: '#D92D45', // 수익(+) — 국내 금융 관례(빨강)
         loss: '#2563EB', // 손실(-) — 국내 금융 관례(파랑)
         // 동행복권 공 색상
@@ -38,7 +38,7 @@ const config: Config = {
         display: ['var(--font-display)', 'var(--font-sans)', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 1px 0 rgba(255,255,255,0.7) inset, 0 8px 24px rgba(20,120,90,0.08)',
+        card: '0 1px 0 rgba(255,255,255,0.7) inset, 0 8px 24px rgba(30,80,200,0.10)',
         glow: '0 0 0 2px #FFC94A, 0 0 18px 4px rgba(255, 201, 74, 0.65)',
       },
       keyframes: {

@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <radialGradient id="bg" cx="50%" cy="35%" r="80%">
-      <stop offset="0" stop-color="#2B3070"/>
-      <stop offset="1" stop-color="#0B0D1F"/>
+      <stop offset="0" stop-color="#3E8DFF"/>
+      <stop offset="1" stop-color="#1646B8"/>
     </radialGradient>
     <radialGradient id="gold" cx="36%" cy="30%" r="75%">
       <stop offset="0" stop-color="#FFF4CC"/>

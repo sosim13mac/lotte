@@ -62,7 +62,7 @@ export function MonthlyChart({ monthly }: { monthly: LedgerMonth[] }) {
           const active = hover === i;
           return (
             <g key={d.month}>
-              {active && <rect x={LEFT + groupW * i + 2} y={TOP} width={groupW - 4} height={H} rx={6} fill="#0A3329" opacity={0.05} />}
+              {active && <rect x={LEFT + groupW * i + 2} y={TOP} width={groupW - 4} height={H} rx={6} fill="#0E2358" opacity={0.05} />}
               <path d={barPath(x1, y(d.spent), BAR, TOP + H - y(d.spent))} fill="var(--viz-series-1)" />
               <path d={barPath(x2, y(d.won), BAR, TOP + H - y(d.won))} fill="var(--viz-series-2)" />
               <text x={cx} y={TOP + H + 15} textAnchor="middle" className="fill-fog-400 text-[10px]">

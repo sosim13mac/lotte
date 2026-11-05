@@ -20,7 +20,7 @@ export function ScanProgress({ stage, progress }: { stage: ScanStage; progress?:
             <span
               className={cn(
                 'flex h-7 w-7 items-center justify-center rounded-full',
-                done ? 'bg-gold text-deep' : active ? 'bg-gold/15 text-gold-deep' : 'bg-ink-700 text-fog-500',
+                done ? 'bg-gold text-white' : active ? 'bg-gold/15 text-gold-deep' : 'bg-ink-700 text-fog-500',
               )}
             >
               {done ? <Check className="h-4 w-4" /> : active ? <LoaderCircle className="h-4 w-4 animate-spin" /> : i + 1}

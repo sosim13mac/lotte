@@ -31,7 +31,7 @@ export function BottomNav({ badges }: { badges?: Partial<Record<string, number>>
                 href={href}
                 className={cn(
                   'relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors lg:h-12 lg:flex-row lg:justify-start lg:gap-3 lg:rounded-2xl lg:px-4 lg:text-sm',
-                  active ? 'text-gold-deep lg:bg-[#DDF5EB]' : 'text-fog-400 hover:text-fog lg:hover:bg-ink-700',
+                  active ? 'text-gold-deep lg:bg-[#DCE9FF]' : 'text-fog-400 hover:text-fog lg:hover:bg-ink-700',
                 )}
                 aria-current={active ? 'page' : undefined}
               >

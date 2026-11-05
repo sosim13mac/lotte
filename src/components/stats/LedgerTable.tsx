@@ -28,7 +28,7 @@ export function LedgerTable({ tickets }: { tickets: Ticket[] }) {
           ].map(([value, label]) => (
             <button
               key={String(value)}
-              className={cn('chip', winsOnly === value && 'bg-gold text-deep')}
+              className={cn('chip', winsOnly === value && 'bg-gold text-white')}
               aria-pressed={winsOnly === value}
               onClick={() => {
                 setWinsOnly(value as boolean);

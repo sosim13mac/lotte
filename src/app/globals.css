@@ -6,7 +6,7 @@
   color-scheme: light;
 
   /* 차트 색 역할 (dataviz 기본 팔레트, 다크 표면 #14172E 기준 6가지 검사 통과) */
-  --viz-grid: #d6efe5;
+  --viz-grid: #d2e2fa;
   --viz-series-1: #3987e5; /* 범주 1: 구매액 */
   --viz-series-2: #d95926; /* 범주 2: 당첨액 */
   /* 순차(파랑 한 색) — 라이트 모드라 낮은 값이 표면(연한 쪽) */
@@ -23,14 +23,14 @@
 
 html,
 body {
-  background-color: #f1fbf7;
+  background-color: #f0f6ff;
 }
 
 body {
   @apply font-sans text-fog antialiased;
   min-height: 100dvh;
   -webkit-tap-highlight-color: transparent;
-  background-image: radial-gradient(120% 60% at 50% -10%, rgba(18, 161, 120, 0.12), rgba(241, 251, 247, 0) 60%);
+  background-image: radial-gradient(120% 60% at 50% -10%, rgba(31, 99, 224, 0.14), rgba(240, 246, 255, 0) 60%);
   background-repeat: no-repeat;
 }
 
@@ -60,7 +60,7 @@ body {
     @apply inline-flex h-12 items-center justify-center gap-2 rounded-2xl px-4 text-[15px] font-bold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-gold {
-    @apply btn bg-gold text-deep hover:bg-gold-soft;
+    @apply btn bg-gold text-white hover:bg-gold-soft;
   }
   .btn-ghost {
     @apply btn bg-ink-700 text-fog hover:bg-ink-600;
@@ -142,13 +142,13 @@ body {
   }
 }
 
-/* 월 예산 슬라이더 (진행 구간 민트 / 나머지 연한 민트) */
+/* 월 예산 슬라이더 (진행 구간 파랑 / 나머지 연한 파랑) */
 .range-mint {
   -webkit-appearance: none;
   appearance: none;
   height: 8px;
   border-radius: 999px;
-  background: linear-gradient(to right, #12a178 var(--p, 0%), #d6efe5 var(--p, 0%));
+  background: linear-gradient(to right, #1f63e0 var(--p, 0%), #d2e2fa var(--p, 0%));
   outline: none;
 }
 .range-mint::-webkit-slider-thumb {
@@ -157,16 +157,16 @@ body {
   height: 22px;
   border-radius: 999px;
   background: #fff;
-  border: 3px solid #12a178;
-  box-shadow: 0 2px 6px rgba(10, 51, 41, 0.25);
+  border: 3px solid #1f63e0;
+  box-shadow: 0 2px 6px rgba(14, 35, 88, 0.25);
 }
 .range-mint::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 999px;
   background: #fff;
-  border: 3px solid #12a178;
+  border: 3px solid #1f63e0;
 }
 .range-mint:focus-visible {
-  box-shadow: 0 0 0 3px rgba(18, 161, 120, 0.35);
+  box-shadow: 0 0 0 3px rgba(31, 99, 224, 0.35);
 }

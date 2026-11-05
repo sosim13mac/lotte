@@ -38,7 +38,7 @@ function BoardBall({
     >
       {n}
       {selected && (
-        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-deep">
+        <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-white">
           <Check className="h-3 w-3" strokeWidth={3} />
         </span>
       )}

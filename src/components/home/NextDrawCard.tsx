@@ -31,7 +31,7 @@ export function NextDrawCard() {
   const spent = mine.reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <section className="card relative overflow-hidden border-0 bg-gradient-to-br from-[#A9EBD3] to-[#86E0C0]">
+    <section className="card relative overflow-hidden border-0 bg-gradient-to-br from-[#BCD6FF] to-[#8FBAFF]">
       <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/40 blur-2xl" />
       <div className="flex items-center justify-between">
         <span className="chip">
