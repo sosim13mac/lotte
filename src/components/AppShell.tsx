@@ -5,6 +5,7 @@ import { useEffect, useMemo } from 'react';
 import { BottomNav } from '@/components/BottomNav';
 import { BudgetWatcher } from '@/components/BudgetWatcher';
 import { GeofenceWatcher } from '@/components/GeofenceWatcher';
+import { GuestBanner } from '@/components/GuestBanner';
 import { Splash } from '@/components/Splash';
 import { Toaster } from '@/components/Toaster';
 import { IS_DEMO } from '@/lib/env';
@@ -52,7 +53,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (status !== 'ready' || !profile?.birth_date) return <Splash />;
+  const guest = status === 'guest';
+  if (!guest && (status !== 'ready' || !profile?.birth_date)) return <Splash />;
 
   return (
     <>
@@ -61,6 +63,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="py-1.5">데모 모드 · 샘플 데이터로 동작 중 (백엔드 미설정)</div>
         </div>
       )}
+      {guest && <GuestBanner />}
       <main className="mx-auto min-h-dvh max-w-[480px] overflow-x-clip px-4 pb-[calc(96px+env(safe-area-inset-bottom))] md:max-w-3xl md:px-6 lg:ml-56 lg:max-w-none lg:px-10 lg:pb-12">
         <div className="mx-auto w-full lg:max-w-5xl xl:max-w-6xl">{children}</div>
       </main>

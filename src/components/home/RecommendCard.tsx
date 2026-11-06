@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3, Cake, ChevronDown, Copy, Dices, Moon, RotateCcw } from 'lucide-react';
+import { BarChart3, Cake, ChevronDown, Copy, Dices, History, Moon, RotateCcw, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Disclaimer } from '@/components/Disclaimer';
 import { Ball } from '@/components/lotto/Ball';
@@ -12,9 +12,12 @@ import { sumBucketOf } from '@/lib/lotto/drawStats';
 import { evaluateQuality } from '@/lib/lotto/quality';
 import type { GameRole, RecommendResult } from '@/lib/lotto/recommend';
 import { runRecommend } from '@/lib/lotto/runRecommend';
+import { addEntry, HISTORY_MAX, loadHistory, saveHistory, type HistoryEntry } from '@/lib/lotto/recoHistory';
+import { formatDateTimeKST } from '@/lib/format';
 import { getRepo, type DrawStatsSummary } from '@/lib/repo';
 import { selectRecentWinningNumbers, useAppStore } from '@/store/useAppStore';
 
+const GUEST_BIRTH_KEY = 'lottedang:guest-birth';
 const DREAM_SUGGESTIONS = ['돼지', '용', '똥', '조상', '물', '돈', '호랑이', '불'];
 
 /** 분포에서 가장 많이 나온 비율 3개: "3:3 389회 · 2:4 301회 · 4:2 280회" (앞 숫자가 홀수/저구간 개수) */
@@ -38,6 +41,7 @@ const ROLE_LABEL: Record<GameRole, string> = {
 /** 개인화 추천: 생년월일·꿈·최근 당첨번호 통계를 근거로 구성한 5게임 (게임·번호마다 근거 표시) */
 export function RecommendCard() {
   const profile = useAppStore((s) => s.profile);
+  const guest = useAppStore((s) => s.status) === 'guest';
   const dreamMap = useAppStore((s) => s.dreamMap);
   const draws = useAppStore((s) => s.draws);
   const recentRounds = useAppStore((s) => s.recentRounds);
@@ -48,6 +52,38 @@ export function RecommendCard() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [drawStats, setDrawStats] = useState<DrawStatsSummary | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  // 게스트는 프로필이 없으므로 생년월일을 이 기기에만 저장해 사용
+  const [guestBirth, setGuestBirth] = useState('');
+
+  useEffect(() => {
+    setHistory(loadHistory());
+    try {
+      setGuestBirth(window.localStorage.getItem(GUEST_BIRTH_KEY) ?? '');
+    } catch {
+      // 무시
+    }
+  }, []);
+
+  function changeGuestBirth(v: string) {
+    setGuestBirth(v);
+    try {
+      window.localStorage.setItem(GUEST_BIRTH_KEY, v);
+    } catch {
+      // 무시
+    }
+  }
+
+  function clearHistory() {
+    setHistory([]);
+    saveHistory([]);
+  }
+
+  function removeHistory(id: string) {
+    const next = history.filter((e) => e.id !== id);
+    setHistory(next);
+    saveHistory(next);
+  }
 
   // 역대 당첨번호의 홀짝·저고·합계·평균 분포 (DB 에 회차마다 기록된 분석 데이터)
   useEffect(() => {
@@ -57,7 +93,8 @@ export function RecommendCard() {
       .catch(() => setDrawStats(null));
   }, []);
 
-  const bday = profile?.birth_date ? birthdayNumber(profile.birth_date) : null;
+  const birthDate = profile?.birth_date ?? (guest ? guestBirth : '');
+  const bday = birthDate ? birthdayNumber(birthDate) : null;
   const dream = useMemo(() => matchDream(dreamText, dreamMap), [dreamText, dreamMap]);
   const recent = useMemo(() => selectRecentWinningNumbers({ draws, recentRounds }), [draws, recentRounds]);
 
@@ -67,11 +104,22 @@ export function RecommendCard() {
     setCopied(false);
     try {
       const started = Date.now();
-      const r = await runRecommend({ birthDate: profile?.birth_date ?? null, dreamText, dreamMap, recentDraws: recent });
+      const r = await runRecommend({ birthDate: birthDate || null, dreamText, dreamMap, recentDraws: recent });
       // 너무 빨리 끝나도 굴리는 맛은 보여주기
       const wait = 700 - (Date.now() - started);
       if (wait > 0) await new Promise((res) => setTimeout(res, wait));
       setResult(r);
+      // 다시 뽑아도 지난 번호를 볼 수 있게 이 기기에 기록
+      const entry: HistoryEntry = {
+        id: `${Date.now()}`,
+        at: new Date().toISOString(),
+        games: r.games.map((g) => ({ numbers: g.numbers, label: ROLE_LABEL[g.role] })),
+      };
+      setHistory((h) => {
+        const next = addEntry(h, entry);
+        saveHistory(next);
+        return next;
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : '번호를 뽑지 못했어요');
     } finally {
@@ -105,7 +153,19 @@ export function RecommendCard() {
         <Cake className="h-4 w-4 text-gold-deep" />
         <span className="text-fog-300">생일수</span>
         <Ball n={bday} hidden={!bday} size="xs" />
-        <span className="ml-auto text-xs text-fog-500">(년+월+일) % 45 + 1</span>
+        {guest ? (
+          <input
+            type="date"
+            aria-label="생년월일"
+            className="input ml-auto h-8 w-[140px] px-2 py-0 text-xs"
+            value={guestBirth}
+            min="1900-01-01"
+            max={new Date().toISOString().slice(0, 10)}
+            onChange={(e) => changeGuestBirth(e.target.value)}
+          />
+        ) : (
+          <span className="ml-auto text-xs text-fog-500">(년+월+일) % 45 + 1</span>
+        )}
       </div>
 
       <label htmlFor="dream" className="label mt-3 flex items-center gap-1.5">
@@ -275,6 +335,44 @@ export function RecommendCard() {
           </button>
           <Disclaimer className="pt-1" />
         </div>
+      )}
+
+      {history.length > 0 && (
+        <details className="group mt-4 rounded-2xl bg-ink-700/40 p-3">
+          <summary className="flex cursor-pointer list-none items-center gap-1.5 text-sm font-bold text-fog">
+            <History className="h-4 w-4 text-gold-deep" /> 지난 추천 번호 <span className="num text-xs font-normal text-fog-400">({history.length})</span>
+            <ChevronDown className="ml-auto h-4 w-4 transition group-open:rotate-180" />
+          </summary>
+          <p className="mt-2 text-[11px] text-fog-500">이 기기에만 최근 {HISTORY_MAX}번까지 저장돼요. 브라우저 데이터를 지우면 사라져요.</p>
+          <ul className="mt-2 space-y-2">
+            {history.map((h) => (
+              <li key={h.id} className="rounded-xl bg-ink-800/70 p-2.5">
+                <div className="flex items-center justify-between text-[11px] text-fog-400">
+                  <span className="num">{formatDateTimeKST(h.at)}</span>
+                  <button type="button" aria-label="이 기록 삭제" className="p-1 hover:text-fog" onClick={() => removeHistory(h.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <ul className="mt-1 space-y-1">
+                  {h.games.map((g, i) => (
+                    <li key={i} className="flex items-center gap-2">
+                      <span className="w-4 text-center text-[11px] font-bold text-fog-400">{GAME_LABELS[i]}</span>
+                      <div className="flex gap-1">
+                        {g.numbers.map((n) => (
+                          <Ball key={n} n={n} size="xs" />
+                        ))}
+                      </div>
+                      <span className="ml-auto hidden text-[10px] text-fog-500 sm:inline">{g.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+          <button type="button" className="btn-ghost btn-sm mt-3 w-full" onClick={clearHistory}>
+            기록 전체 삭제
+          </button>
+        </details>
       )}
     </section>
   );

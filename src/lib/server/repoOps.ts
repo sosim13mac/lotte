@@ -45,6 +45,16 @@ async function ensureUser(user: SessionUser) {
   await q('insert into public.users (id, email) values ($1, $2) on conflict (id) do nothing', [user.id, user.email]);
 }
 
+/** 로그인 없이 호출할 수 있는 연산 — 모두 사용자와 무관한 공개 데이터 읽기 전용 */
+export const PUBLIC_OPS: ReadonlySet<string> = new Set([
+  'listDraws',
+  'getDrawStats',
+  'getDrawCoverage',
+  'listDreamMap',
+  'findStore',
+  'listStores',
+]);
+
 /** Repo 인터페이스와 같은 이름의 서버 연산. 모두 로그인한 사용자 본인 데이터만 다룹니다. */
 export const ops: Record<string, (user: SessionUser, a: Args) => Promise<unknown>> = {
   async getProfile(user) {

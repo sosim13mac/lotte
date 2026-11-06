@@ -27,7 +27,7 @@ export function OnboardingView({ next }: { next: string }) {
   }, [bootstrap]);
 
   useEffect(() => {
-    if (status === 'unauthenticated') router.replace('/login');
+    if (status === 'unauthenticated' || status === 'guest') router.replace('/login');
     if (status === 'ready' && profile?.birth_date) router.replace(next);
   }, [status, profile, next, router]);
 

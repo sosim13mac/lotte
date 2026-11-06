@@ -3,30 +3,14 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { IS_DEMO } from '@/lib/env';
 
-/** 로그인 없이 접근 가능한 경로 */
-const PUBLIC_PREFIXES = ['/login', '/auth', '/api/auth', '/api/cron', '/offline', '/privacy'];
-
-export function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-}
-
+/**
+ * 로그인 없이도 화면은 열립니다 (게스트 모드: 번호 추천·당첨 확인·명당지도).
+ * 로그인이 필요한 화면(티켓로그·가계부·설정·문의)은 화면에서 안내하고,
+ * 데이터는 /api/repo 가 서버에서 세션을 검사해 보호합니다.
+ */
 export function middleware(request: NextRequest) {
-  // 데모 모드: 인증 없이 로컬 샘플 데이터로 동작
-  if (IS_DEMO) return NextResponse.next();
-
-  // 세션 쿠키 유무만 빠르게 확인합니다. 실제 검증은 각 API 가 서버에서 합니다.
-  const signedIn = Boolean(getSessionCookie(request));
-  const { pathname, search } = request.nextUrl;
-
-  if (!signedIn && !isPublicPath(pathname)) {
-    if (pathname.startsWith('/api/')) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.search = '';
-    if (pathname !== '/') url.searchParams.set('next', `${pathname}${search}`);
-    return NextResponse.redirect(url);
-  }
-  if (signedIn && pathname === '/login') {
+  // 이미 로그인했으면 로그인 화면은 건너뜀
+  if (!IS_DEMO && request.nextUrl.pathname === '/login' && getSessionCookie(request)) {
     const url = request.nextUrl.clone();
     url.pathname = '/';
     url.search = '';

@@ -11,9 +11,12 @@ import {
   type Ticket,
   type TicketPatch,
   type WinningDraw,
+  DuplicateTicketError,
 } from '@/lib/repo';
+import { makeGuestTicket } from '@/lib/guestTicket';
 
-export type AppStatus = 'idle' | 'loading' | 'ready' | 'unauthenticated' | 'error';
+/** guest: 로그인하지 않고 둘러보는 상태 (번호 추천·당첨 확인·명당지도는 가능, 기록은 저장 안 됨) */
+export type AppStatus = 'idle' | 'loading' | 'ready' | 'guest' | 'unauthenticated' | 'error';
 
 export interface Toast {
   id: number;
@@ -103,7 +106,11 @@ export const useAppStore = create<AppState>()((set, get) => ({
         const repo = getRepo();
         const profile = await repo.getProfile();
         if (!profile) {
-          set({ status: 'unauthenticated', profile: null });
+          // 게스트: 공개 데이터(당첨번호·꿈 해몽)만 불러오고 기록은 저장하지 않음
+          const [recent, dreamMap] = await Promise.all([repo.listDraws({ limit: 20 }), repo.listDreamMap()]);
+          const draws: Record<number, WinningDraw> = {};
+          recent.forEach((d) => (draws[d.round] = d));
+          set({ status: 'guest', profile: null, tickets: [], favorites: [], draws, recentRounds: recent.map((d) => d.round), dreamMap });
           return;
         }
         const [tickets, recent, dreamMap, favorites] = await Promise.all([
@@ -153,6 +160,13 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   async addTicket(input) {
+    if (get().status === 'guest') {
+      if (input.qr_raw && get().tickets.some((t) => t.qr_raw === input.qr_raw)) throw new DuplicateTicketError();
+      await get().loadDraws([input.round]);
+      const guestTicket = makeGuestTicket(input, get().draws[input.round]);
+      set((s) => ({ tickets: [guestTicket, ...s.tickets] }));
+      return guestTicket;
+    }
     const ticket = await getRepo().insertTicket(input);
     set((s) => ({ tickets: [ticket, ...s.tickets] }));
     await get().loadDraws([ticket.round]);
@@ -163,6 +177,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
     // 낙관적 업데이트 (실패 시 되돌림)
     const before = get().tickets;
     set({ tickets: before.map((t) => (t.id === id ? { ...t, ...patch } : t)) });
+    if (get().status === 'guest') return; // 게스트는 메모리에서만 수정
     try {
       await getRepo().updateTicket(id, patch);
     } catch (e) {
@@ -172,7 +187,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   async removeTicket(id) {
-    await getRepo().deleteTicket(id);
+    if (get().status !== 'guest') await getRepo().deleteTicket(id);
     set((s) => ({ tickets: s.tickets.filter((t) => t.id !== id) }));
   },
 
@@ -183,6 +198,10 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   async toggleFavorite(store) {
+    if (get().status === 'guest') {
+      get().showToast('단골점은 로그인하면 저장할 수 있어요', 'warning');
+      return;
+    }
     const before = get().favorites;
     const on = !before.some((f) => f.code === store.code);
     set({ favorites: on ? [store, ...before] : before.filter((f) => f.code !== store.code) });
@@ -197,7 +216,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
   async signOut() {
     await getRepo().signOut();
-    set({ status: 'unauthenticated', profile: null, tickets: [], draws: {}, recentRounds: [] });
+    set({ status: 'idle', profile: null, tickets: [], favorites: [], draws: {}, recentRounds: [] });
+    await get().bootstrap({ force: true }); // 게스트 상태로 전환
   },
 }));
 
